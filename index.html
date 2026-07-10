@@ -70,16 +70,18 @@
           <aside class="collection-filters panel" id="collectionFilters">
             <div class="panel-title"><h2>Filtrar estante</h2><button type="button" class="text-btn" id="clearShelfFilters">Limpar</button></div>
             <input id="shelfCollection" type="hidden" value="all">
+            <fieldset class="view-selector"><legend>Visualização</legend><div class="view-options"><button type="button" data-shelf-view="table">▦<span>Tabela</span></button><button type="button" data-shelf-view="list">☷<span>Lista</span></button><button type="button" data-shelf-view="kanban">▥<span>Kanban</span></button></div></fieldset>
             <label>Buscar por título<input id="shelfSearch" type="search" placeholder="Buscar nesta coleção"></label>
             <label>Categoria<select id="shelfCategory"></select></label>
             <label>Status<select id="shelfStatus"></select></label>
             <label>Nota mínima<select id="shelfRating"><option value="">Qualquer nota</option><option value="5">5 estrelas</option><option value="4">4 estrelas ou mais</option><option value="3">3 estrelas ou mais</option><option value="2">2 estrelas ou mais</option><option value="1">1 estrela ou mais</option></select></label>
             <label>Tag<select id="shelfTag"></select></label>
             <label>Ordenar<select id="shelfSort"><option value="az">Título de A a Z</option><option value="za">Título de Z a A</option><option value="recent">Adicionados recentemente</option><option value="updated">Atualizados recentemente</option><option value="rating">Maior nota</option><option value="progressDesc">Maior progresso</option><option value="progressAsc">Menor progresso</option></select></label>
-            <div class="collection-filter-footer"><button class="btn btn-secondary" id="manageCollectionsBtn">⚙ Editar coleções</button></div>
+            <button class="hidden" id="manageCollectionsBtn" aria-hidden="true" tabindex="-1"></button>
           </aside>
           <div class="collection-catalog-area">
             <div class="collection-tabs" id="collectionTabs" role="tablist" aria-label="Coleções"></div>
+            <div class="kanban-group-tabs hidden" id="kanbanGroupTabs" role="tablist" aria-label="Agrupar colunas do Kanban"></div>
             <div class="shelf-summary" id="shelfSummary"></div>
             <div class="shelf-grid" id="shelfGrid"></div>
           </div>

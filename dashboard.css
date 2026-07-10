@@ -15,6 +15,8 @@ select {
   cursor: pointer;
 }
 
+.topbar{width:100%;max-width:none;padding-left:20px;padding-right:clamp(20px,3vw,46px)}
+
 .setting-name-form{display:flex;gap:8px;flex-wrap:wrap}.setting-name-form input{flex:1;min-width:190px}.public-screen{min-height:100vh;background:var(--bg)}.public-header{height:74px;display:flex;align-items:center;padding:0 clamp(18px,4vw,60px);background:var(--surface);border-bottom:1px solid var(--line)}.public-main{max-width:1320px;margin:0 auto;padding:52px clamp(18px,4vw,60px) 80px}.public-hero{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:34px;padding-bottom:28px;border-bottom:1px solid var(--line)}.public-owner{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px}.public-description{max-width:680px;font-size:16px}.public-count{white-space:nowrap;color:var(--muted)}.public-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:clamp(16px,2vw,26px)}.public-card{cursor:pointer}.public-card h3{font-size:14px;margin:10px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.public-card-meta{font-size:12px;color:var(--muted)}.public-error{text-align:center;padding:100px 20px}.privacy-toggle{display:flex;align-items:center;gap:10px!important;flex-direction:row!important;margin:18px 0!important}.privacy-toggle input{width:18px;height:18px;min-height:auto}.public-badge{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:20px;background:var(--accent-2);color:var(--accent);font-size:10px;font-weight:700}.share-btn{color:var(--accent)}
 
 main {
@@ -108,6 +110,8 @@ main {
   font-weight: 700;
 }
 
+.view-selector{border:0;padding:0;margin:0 0 20px}.view-selector legend{margin-bottom:7px;font-size:12px;font-weight:700}.view-options{display:grid;grid-template-columns:repeat(3,1fr);padding:4px;background:var(--surface-2);border-radius:10px}.view-options button{min-width:0;border:0;border-radius:7px;background:transparent;padding:7px 3px;color:var(--muted);font-size:16px}.view-options button span{display:block;margin-top:2px;font-size:9px;font-weight:700}.view-options button.active{background:var(--surface);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
 .collection-filter-footer {
   margin-top: auto;
   padding-top: 20px;
@@ -149,6 +153,9 @@ main {
   color: var(--surface);
 }
 
+.collection-settings-tab{width:38px;padding:0;font-size:15px}.collection-settings-tab:hover{transform:rotate(18deg)}
+.kanban-group-tabs{display:flex;align-items:center;gap:6px;margin:-5px 2px 14px;padding-top:10px;border-top:1px solid var(--line)}.kanban-group-tabs::before{content:'Colunas:';margin-right:3px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px}.kanban-group-tab{min-height:30px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font-size:11px;font-weight:700}.kanban-group-tab:hover,.kanban-group-tab.active{border-color:var(--accent);background:var(--accent-2);color:var(--accent)}
+
 #colecoesPage .shelf-summary {
   margin: 10px 0 18px;
 }
@@ -158,6 +165,8 @@ main {
   gap: clamp(14px, 1.6vw, 24px);
   margin-bottom: 0;
 }
+
+#colecoesPage .shelf-grid.list-view{display:flex;flex-direction:column;gap:8px}.list-book{display:grid;grid-template-columns:48px minmax(180px,2fr) minmax(110px,1fr) minmax(120px,1fr) minmax(150px,1.4fr) 90px;gap:16px;align-items:center;padding:9px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px}.list-book:hover{border-color:var(--accent);box-shadow:var(--shadow)}.list-cover{width:42px;aspect-ratio:2/3;border-radius:5px;object-fit:cover;background:var(--surface-2)}.list-cover.cover-placeholder{padding:4px;font-size:8px}.list-title{border:0;background:none;text-align:left;padding:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.list-cell{font-size:12px;color:var(--muted)}.list-progress .chapter-line{margin-top:0}.list-stars{color:#d49b32;font-size:11px}.shelf-grid.kanban-view{display:flex!important;align-items:flex-start;gap:14px;overflow-x:auto;padding-bottom:18px}.kanban-column{flex:0 0 250px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:11px}.kanban-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:2px 3px}.kanban-head h3{font-size:12px;margin:0}.kanban-count{display:grid;place-items:center;min-width:23px;height:23px;border-radius:20px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:700}.kanban-stack{display:flex;flex-direction:column;gap:8px;min-height:60px}.kanban-card{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;cursor:pointer}.kanban-card:hover{border-color:var(--accent);transform:translateY(-1px)}.kanban-cover{width:42px;aspect-ratio:2/3;border-radius:5px;object-fit:cover;background:var(--surface-2)}.kanban-cover.cover-placeholder{padding:3px;font-size:8px}.kanban-card h4{font-size:12px;margin:2px 0 6px}.kanban-card p{font-size:10px;margin:0}.kanban-empty{font-size:11px;text-align:center;padding:15px 5px;margin:0}
 
 .collection-manager {
   padding: 34px;
@@ -247,8 +256,109 @@ main {
   }
 }
 
+@media(max-width:700px){.list-book{grid-template-columns:42px 1fr 80px}.list-book .hide-mobile{display:none}.list-book{gap:10px;padding:8px}.collection-catalog-area{min-width:0}}
+
 @media (max-width: 600px) {
   #dashboardPage .book-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Kanban com rolagem horizontal ancorada ao rodapé da viewport */
+.shelf-grid.kanban-view {
+  align-items: stretch;
+  height: calc(100vh - 190px);
+  min-height: 420px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 12px;
+  scrollbar-gutter: stable;
+}
+
+.kanban-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+
+.kanban-stack {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1px 3px 8px;
+}
+
+.kanban-card {
+  cursor: grab;
+  transition: opacity .15s, transform .15s, border-color .15s;
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  opacity: .35;
+  transform: scale(.97);
+}
+
+.kanban-column.drag-over {
+  border: 2px dashed var(--accent);
+  background: var(--accent-2);
+  transform: translateY(-2px);
+}
+
+.kanban-head[draggable="true"]{cursor:grab;user-select:none}.kanban-head[draggable="true"]:active{cursor:grabbing}.kanban-head h3{flex:1}.kanban-column.column-dragging{opacity:.38}.kanban-column.column-drag-target{border-left:4px solid var(--accent);transform:translateX(3px)}
+
+@media (max-width: 900px) {
+  .shelf-grid.kanban-view {
+    height: calc(100vh - 165px);
+    min-height: 360px;
+  }
+}
+
+/* No modo Kanban, toda a área útil cabe exatamente abaixo do cabeçalho. */
+#colecoesPage:has(.kanban-view) .collections-layout {
+  height: calc(100vh - 74px);
+  overflow: hidden;
+}
+
+#colecoesPage:has(.kanban-view) .collection-catalog-area {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+#colecoesPage:has(.kanban-view) .collection-tabs,
+#colecoesPage:has(.kanban-view) .kanban-group-tabs,
+#colecoesPage:has(.kanban-view) .shelf-summary {
+  flex: 0 0 auto;
+}
+
+#colecoesPage .shelf-grid.kanban-view {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+#colecoesPage .shelf-grid.kanban-view{gap:8px}.kanban-column{flex-basis:235px}
+
+.schedule-section{grid-column:1/-1;margin:8px 0 4px;padding:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px}.ongoing-toggle{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;margin:0!important;font-size:14px!important}.ongoing-toggle input{width:18px;height:18px;min-height:auto}.schedule-fields{margin-top:16px}.schedule-fields>label,.monthly-schedule{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700}.schedule-label{display:block;margin-bottom:8px;font-size:12px;font-weight:700}.weekly-schedule{margin:15px 0}.monthly-schedule small{color:var(--muted);font-weight:400}.next-release{margin:7px 0 0!important;color:var(--accent)!important;font-size:10px!important;font-weight:700}.list-book{position:relative;padding-bottom:22px}.list-book>.next-release{position:absolute;left:72px;bottom:5px}.kanban-card .next-release{line-height:1.25}.shelf-card>.next-release{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quick-read{min-height:32px;padding:0 9px;font-size:10px;text-transform:uppercase;letter-spacing:.2px}.quick-read:disabled{opacity:.45;cursor:not-allowed}.shelf-card>.quick-read{width:100%;margin-top:9px}.kanban-card .quick-read{width:100%;min-height:27px;margin-top:7px;padding:0 5px;font-size:8px}.list-book>.quick-read{position:absolute;right:12px;bottom:6px;min-height:28px}.list-book{padding-right:112px;padding-bottom:12px}.list-book>.next-release{bottom:7px;max-width:calc(100% - 290px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kanban-card{grid-template-columns:50px minmax(0,1fr);align-items:stretch}.kanban-card .kanban-cover{width:50px;height:100%;min-height:100%;aspect-ratio:auto;align-self:stretch;object-fit:cover}.kanban-card .kanban-cover.cover-placeholder{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.shelf-grid.kanban-view,.kanban-view .kanban-column,.kanban-view .kanban-stack{cursor:grab}.shelf-grid.kanban-view.panning,.kanban-view.panning .kanban-column,.kanban-view.panning .kanban-stack{cursor:grabbing;user-select:none}.kanban-view .kanban-card{cursor:grab}
+.table-view .shelf-card{height:100%;display:flex;flex-direction:column;min-width:0}.table-view .shelf-card h3{height:34px;min-height:34px;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden}.table-view .shelf-card .meta-row{height:17px;min-height:17px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.table-view .shelf-card>.progress{margin-top:5px;margin-bottom:14px}.table-view .shelf-card>.quick-read{margin-top:auto}.release-cover-badge{position:absolute;left:0;right:0;bottom:0;z-index:2;width:100%;max-width:none;padding:8px 10px;border-radius:0;background:rgba(255,255,255,.94);color:var(--accent);font-size:9px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;backdrop-filter:blur(5px);box-shadow:0 -3px 12px rgba(0,0,0,.12)}
+
+@media (max-width: 900px) {
+  #colecoesPage:has(.kanban-view) .collections-layout {
+    height: auto;
+    overflow: visible;
+  }
+
+  #colecoesPage:has(.kanban-view) .collection-catalog-area {
+    height: calc(100vh - 145px);
   }
 }
