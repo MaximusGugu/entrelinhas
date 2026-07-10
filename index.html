@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Biblioteca pessoal para catalogar suas leituras.">
+  <title>Entrelinhas — Catálogo de leitura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <section class="public-screen hidden" id="publicScreen">
+    <header class="public-header"><a class="brand" href="#" aria-label="Entrelinhas"><span class="brand-mark">E</span><span><strong>Entrelinhas</strong><small>ESTANTE COMPARTILHADA</small></span></a></header>
+    <main class="public-main" id="publicContent"></main>
+  </section>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card panel">
+      <div class="auth-brand"><span class="brand-mark">E</span><div><strong>Entrelinhas</strong><small>MINHA BIBLIOTECA</small></div></div>
+      <div><p class="eyebrow">BEM-VINDO</p><h1 id="authTitle">Entre na sua biblioteca</h1><p id="authSubtitle">Suas leituras sincronizadas e disponíveis em qualquer dispositivo.</p></div>
+      <form id="authForm" class="auth-form">
+        <label>E-mail<input id="authEmail" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
+        <label>Senha<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></label>
+        <p class="auth-error hidden" id="authError" role="alert"></p>
+        <button class="btn btn-primary" id="authSubmit">Entrar</button>
+      </form>
+      <button type="button" class="text-btn auth-switch" id="authSwitch">Ainda não tenho conta — cadastrar</button>
+    </div>
+  </section>
+  <div class="app-shell hidden" id="appShell">
+    <header class="topbar">
+      <a class="brand" href="#colecoes" aria-label="Entrelinhas, Minha estante"><span class="brand-mark">E</span><span><strong>Entrelinhas</strong><small>minha biblioteca</small></span></a>
+      <button class="mobile-menu icon-btn" id="mobileMenu" aria-label="Abrir menu" aria-expanded="false">☰</button>
+      <nav class="main-nav" id="mainNav" aria-label="Menu principal">
+        <a href="#colecoes" data-page="colecoes">Minha estante</a>
+        <a href="#categorias" data-page="categorias">Categorias e tags</a>
+        <a href="#configuracoes" data-page="configuracoes">Configurações</a>
+      </nav>
+      <div class="top-actions">
+        <span class="user-email" id="userEmail"></span>
+        <button class="icon-btn" id="themeToggle" aria-label="Alternar tema">☾</button>
+        <button class="icon-btn" id="logoutBtn" aria-label="Sair da conta" title="Sair">↪</button>
+        <button class="btn btn-primary" id="addWorkBtn"><span>＋</span> Adicionar obra</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page" id="dashboardPage">
+        <div class="dashboard-mobile-tools"><button class="btn btn-secondary filter-toggle" id="filterToggle">☷ Filtros</button></div>
+        <div class="dashboard-layout">
+          <aside class="filters panel" id="filtersPanel">
+            <div class="panel-title"><h2>Filtrar catálogo</h2><button type="button" class="text-btn" id="clearFilters">Limpar</button></div>
+            <label>Buscar por título<input id="filterSearch" type="search" placeholder="Ex.: Solo Leveling"></label>
+            <label>Categoria<select id="filterCategory"></select></label>
+            <label>Status<select id="filterStatus"></select></label>
+            <label>Nota mínima<select id="filterRating"><option value="">Qualquer nota</option><option value="5">5 estrelas</option><option value="4">4 estrelas ou mais</option><option value="3">3 estrelas ou mais</option><option value="2">2 estrelas ou mais</option><option value="1">1 estrela ou mais</option></select></label>
+            <label>Tag<select id="filterTag"></select></label>
+            <label>Coleção<select id="filterCollection"></select></label>
+            <label>Ordenar por<select id="filterSort"><option value="recent">Adicionados recentemente</option><option value="updated">Atualizados recentemente</option><option value="az">Título de A a Z</option><option value="za">Título de Z a A</option><option value="rating">Maior nota</option><option value="progressDesc">Maior progresso</option><option value="progressAsc">Menor progresso</option></select></label>
+          </aside>
+          <div class="catalog-area"><div class="results-bar"><strong id="resultCount"></strong><div class="view-label">▦ Visualização em grade</div></div><div class="book-grid" id="bookGrid"></div><div class="empty-state hidden" id="emptyState"><div>⌕</div><h2>Nenhuma obra encontrada</h2><p>Tente ajustar os filtros para ver mais resultados.</p><button class="btn btn-secondary" id="emptyClear">Limpar filtros</button></div></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="colecoesPage">
+        <div class="collections-mobile-tools"><button class="btn btn-secondary" id="collectionFilterToggle">☷ Filtros</button></div>
+        <div class="collections-layout">
+          <aside class="collection-filters panel" id="collectionFilters">
+            <div class="panel-title"><h2>Filtrar estante</h2><button type="button" class="text-btn" id="clearShelfFilters">Limpar</button></div>
+            <input id="shelfCollection" type="hidden" value="all">
+            <label>Buscar por título<input id="shelfSearch" type="search" placeholder="Buscar nesta coleção"></label>
+            <label>Categoria<select id="shelfCategory"></select></label>
+            <label>Status<select id="shelfStatus"></select></label>
+            <label>Nota mínima<select id="shelfRating"><option value="">Qualquer nota</option><option value="5">5 estrelas</option><option value="4">4 estrelas ou mais</option><option value="3">3 estrelas ou mais</option><option value="2">2 estrelas ou mais</option><option value="1">1 estrela ou mais</option></select></label>
+            <label>Tag<select id="shelfTag"></select></label>
+            <label>Ordenar<select id="shelfSort"><option value="az">Título de A a Z</option><option value="za">Título de Z a A</option><option value="recent">Adicionados recentemente</option><option value="updated">Atualizados recentemente</option><option value="rating">Maior nota</option><option value="progressDesc">Maior progresso</option><option value="progressAsc">Menor progresso</option></select></label>
+            <div class="collection-filter-footer"><button class="btn btn-secondary" id="manageCollectionsBtn">⚙ Editar coleções</button></div>
+          </aside>
+          <div class="collection-catalog-area">
+            <div class="collection-tabs" id="collectionTabs" role="tablist" aria-label="Coleções"></div>
+            <div class="shelf-summary" id="shelfSummary"></div>
+            <div class="shelf-grid" id="shelfGrid"></div>
+          </div>
+        </div>
+        <div class="hidden" id="collectionManage"></div>
+        <button class="hidden" id="newCollectionBtn" aria-hidden="true"></button>
+      </section>
+
+      <section class="page hidden" id="categoriasPage">
+        <div class="page-heading"><div><p class="eyebrow">ORGANIZAÇÃO</p><h1>Categorias e tags</h1><p>Personalize a forma como sua biblioteca é organizada.</p></div></div>
+        <div class="two-columns"><div class="panel manage-panel"><div class="panel-title"><div><h2>Categorias</h2><p>Uma categoria principal por obra.</p></div></div><form class="inline-form" id="categoryForm"><label class="sr-only" for="categoryName">Nova categoria</label><input id="categoryName" required placeholder="Nova categoria"><button class="btn btn-primary">Adicionar</button></form><div id="categoryList" class="item-list"></div></div><div class="panel manage-panel"><div class="panel-title"><div><h2>Tags</h2><p>Use quantas quiser em cada obra.</p></div></div><form class="inline-form" id="tagForm"><label class="sr-only" for="tagName">Nova tag</label><input id="tagName" required placeholder="Nova tag"><button class="btn btn-primary">Adicionar</button></form><div id="tagList" class="item-list"></div></div></div>
+      </section>
+
+      <section class="page hidden" id="configuracoesPage">
+        <div class="page-heading"><div><p class="eyebrow">PREFERÊNCIAS</p><h1>Configurações</h1><p>Personalize a aparência e proteja os dados da sua biblioteca.</p></div></div>
+        <div class="settings-grid"><div class="panel setting-card"><span class="setting-icon">☺</span><div><h2>Nome público</h2><p>Este nome aparecerá nas coleções que você compartilhar.</p><form class="setting-name-form" id="displayNameForm"><label class="sr-only" for="displayNameInput">Nome público</label><input id="displayNameInput" maxlength="60" required placeholder="Como você quer ser chamado"><button class="btn btn-primary">Salvar nome</button></form></div></div><div class="panel setting-card"><span class="setting-icon">◐</span><div><h2>Aparência</h2><p>Escolha o tema mais confortável para leitura.</p><div class="segmented"><button type="button" data-theme="light">Claro</button><button type="button" data-theme="dark">Escuro</button></div></div></div><div class="panel setting-card"><span class="setting-icon">⇩</span><div><h2>Exportar dados</h2><p>Baixe uma cópia completa da sua biblioteca em JSON.</p><button class="btn btn-secondary" id="exportBtn">Exportar biblioteca</button></div></div><div class="panel setting-card"><span class="setting-icon">⇧</span><div><h2>Importar dados</h2><p>Restaure um arquivo JSON válido. Os dados atuais serão substituídos.</p><label class="btn btn-secondary file-btn">Escolher arquivo<input type="file" id="importInput" accept="application/json,.json"></label></div></div><div class="panel setting-card danger-card"><span class="setting-icon">↺</span><div><h2>Restaurar demonstração</h2><p>Apaga alterações e recupera os dados fictícios iniciais.</p><button class="btn btn-danger-outline" id="resetBtn">Restaurar dados</button></div></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modalBackdrop"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" id="modalClose" aria-label="Fechar">×</button><div id="modalContent"></div></div></div>
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
