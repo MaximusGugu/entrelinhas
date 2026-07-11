@@ -1,15 +1,22 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#8fc1a4">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Entrelinhas">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="Entrelinhas">
   <meta name="description" content="Biblioteca pessoal para catalogar suas leituras.">
   <title>Entrelinhas — Catálogo de leitura</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="styles.css?v=20260710-reading-cover">
+  <link rel="stylesheet" href="dashboard.css?v=20260710-compact-collapsed-switcher">
 </head>
 <body>
   <section class="public-screen hidden" id="publicScreen">
@@ -68,9 +75,9 @@
         <div class="collections-mobile-tools"><button class="btn btn-secondary" id="collectionFilterToggle">☷ Filtros</button></div>
         <div class="collections-layout">
           <aside class="collection-filters panel" id="collectionFilters">
-            <div class="panel-title"><h2>Filtrar estante</h2><button type="button" class="text-btn" id="clearShelfFilters">Limpar</button></div>
+            <div class="panel-title collection-filter-title"><h2>Filtros</h2><div class="filter-title-actions"><button type="button" class="sidebar-icon-btn" id="shelfSidebarToggle" aria-label="Colapsar filtros" aria-pressed="false" title="Colapsar filtros"><span aria-hidden="true"></span></button><button type="button" class="text-btn" id="clearShelfFilters">Limpar</button></div></div>
             <input id="shelfCollection" type="hidden" value="all">
-            <fieldset class="view-selector"><legend>Visualização</legend><div class="view-options"><button type="button" data-shelf-view="table">▦<span>Tabela</span></button><button type="button" data-shelf-view="list">☷<span>Lista</span></button><button type="button" data-shelf-view="kanban">▥<span>Kanban</span></button></div></fieldset>
+            <fieldset class="view-selector"><legend>Visualização</legend><div class="view-options"><button type="button" data-shelf-view="table" aria-label="Visualização em tabela" title="Tabela">▦<span>Tabela</span></button><button type="button" data-shelf-view="list" aria-label="Visualização em lista" title="Lista">☷<span>Lista</span></button><button type="button" data-shelf-view="kanban" aria-label="Visualização Kanban" title="Kanban">▥<span>Kanban</span></button></div></fieldset>
             <label>Buscar por título<input id="shelfSearch" type="search" placeholder="Buscar nesta coleção"></label>
             <label>Categoria<select id="shelfCategory"></select></label>
             <label>Status<select id="shelfStatus"></select></label>
@@ -92,7 +99,7 @@
 
       <section class="page hidden" id="categoriasPage">
         <div class="page-heading"><div><p class="eyebrow">ORGANIZAÇÃO</p><h1>Categorias e tags</h1><p>Personalize a forma como sua biblioteca é organizada.</p></div></div>
-        <div class="two-columns"><div class="panel manage-panel"><div class="panel-title"><div><h2>Categorias</h2><p>Uma categoria principal por obra.</p></div></div><form class="inline-form" id="categoryForm"><label class="sr-only" for="categoryName">Nova categoria</label><input id="categoryName" required placeholder="Nova categoria"><button class="btn btn-primary">Adicionar</button></form><div id="categoryList" class="item-list"></div></div><div class="panel manage-panel"><div class="panel-title"><div><h2>Tags</h2><p>Use quantas quiser em cada obra.</p></div></div><form class="inline-form" id="tagForm"><label class="sr-only" for="tagName">Nova tag</label><input id="tagName" required placeholder="Nova tag"><button class="btn btn-primary">Adicionar</button></form><div id="tagList" class="item-list"></div></div></div>
+        <div class="two-columns"><div class="panel manage-panel"><div class="panel-title"><div><h2>Categorias</h2><p>Uma categoria principal por obra.</p></div></div><form class="inline-form taxonomy-form" id="categoryForm"><label class="sr-only" for="categoryName">Nova categoria</label><input id="categoryName" required placeholder="Nova categoria"><input type="color" id="categoryColor" value="#4f9a73" aria-label="Cor da categoria"><button class="btn btn-primary">Adicionar</button></form><div id="categoryList" class="item-list"></div></div><div class="panel manage-panel"><div class="panel-title"><div><h2>Tags</h2><p>Use quantas quiser em cada obra.</p></div></div><form class="inline-form taxonomy-form" id="tagForm"><label class="sr-only" for="tagName">Nova tag</label><input id="tagName" required placeholder="Nova tag"><input type="color" id="tagColor" value="#4f7dbd" aria-label="Cor da tag"><button class="btn btn-primary">Adicionar</button></form><div id="tagList" class="item-list"></div></div></div><div class="panel manage-panel status-manager"><div class="panel-title"><div><h2>Status</h2><p>Personalize nomes e cores dos status usados na biblioteca.</p></div></div><form class="inline-form taxonomy-form" id="statusForm"><label class="sr-only" for="statusName">Novo status</label><input id="statusName" required placeholder="Novo status"><input type="color" id="statusColor" value="#8d67b5" aria-label="Cor do status"><button class="btn btn-primary">Adicionar</button></form><div id="statusList" class="item-list"></div></div>
       </section>
 
       <section class="page hidden" id="configuracoesPage">
@@ -108,6 +115,7 @@
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=20260710-sidebar-icon"></script>
 </body>
 </html>
+

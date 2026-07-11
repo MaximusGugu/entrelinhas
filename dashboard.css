@@ -70,6 +70,28 @@ main {
   width: 100%;
 }
 
+#dashboardPage .book-card .cover-wrap {
+  transition: transform .28s ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+#dashboardPage .book-card .cover-wrap:hover,
+#dashboardPage .book-card .cover-wrap:focus-within {
+  transform: scale(1.045);
+}
+
+#colecoesPage .shelf-card .cover-wrap {
+  transition: transform .28s ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+#colecoesPage .shelf-card .cover-wrap:hover,
+#colecoesPage .shelf-card .cover-wrap:focus-within {
+  transform: scale(1.045);
+}
+
 #colecoesPage {
   max-width: none;
   margin: 0;
@@ -126,6 +148,32 @@ main {
   min-width: 0;
   padding: 26px clamp(20px, 3vw, 46px) 60px;
 }
+
+.collection-filter-title{gap:10px}.filter-title-actions{display:flex;align-items:center;gap:7px}.sidebar-icon-btn{width:26px;height:26px;min-height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--muted)}.sidebar-icon-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}.sidebar-icon-btn span{position:relative;width:13px;height:13px;border:1.5px solid currentColor;border-radius:4px}.sidebar-icon-btn span::before{content:"";position:absolute;top:1.5px;bottom:1.5px;left:3.5px;width:1.5px;border-radius:2px;background:currentColor}.sidebar-icon-btn[aria-pressed="true"] span::before{left:auto;right:3.5px}
+
+#colecoesPage.sidebar-collapsed .collections-layout {
+  grid-template-columns: 52px minmax(0, 1fr);
+}
+
+#colecoesPage.sidebar-collapsed .collection-filters {
+  padding: 18px 12px;
+  overflow: hidden;
+}
+
+#colecoesPage.sidebar-collapsed .collection-catalog-area {
+  width: 100%;
+}
+
+#colecoesPage.sidebar-collapsed .collection-filter-title{justify-content:center;margin-bottom:0}
+#colecoesPage.sidebar-collapsed .collection-filter-title h2,
+#colecoesPage.sidebar-collapsed .collection-filter-title .text-btn,
+#colecoesPage.sidebar-collapsed .collection-filters > label,
+#colecoesPage.sidebar-collapsed .collection-filters > .hidden:not(#manageCollectionsBtn){display:none}
+#colecoesPage.sidebar-collapsed .view-selector{margin:10px 0 0}
+#colecoesPage.sidebar-collapsed .view-selector legend{display:none}
+#colecoesPage.sidebar-collapsed .view-options{grid-template-columns:1fr;gap:2px;width:26px;padding:2px;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+#colecoesPage.sidebar-collapsed .view-options button{width:20px;height:20px;min-height:20px;display:grid;place-items:center;padding:0;border-radius:5px;font-size:11px;line-height:1}
+#colecoesPage.sidebar-collapsed .view-options button span{display:none}
 
 .collection-tabs {
   display: flex;
@@ -254,6 +302,59 @@ main {
   .collection-catalog-area {
     padding: 20px 18px 50px;
   }
+
+  .sidebar-icon-btn {
+    display: none;
+  }
+
+  #colecoesPage.sidebar-collapsed .collection-filter-title {
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  #colecoesPage.sidebar-collapsed .collection-filter-title h2,
+  #colecoesPage.sidebar-collapsed .collection-filter-title .text-btn {
+    display: block;
+  }
+
+  #colecoesPage.sidebar-collapsed .collection-filters > label {
+    display: flex;
+  }
+
+  #colecoesPage.sidebar-collapsed .collection-filters > fieldset {
+    display: block;
+  }
+
+  #colecoesPage.sidebar-collapsed .view-selector {
+    margin: 0 0 20px;
+  }
+
+  #colecoesPage.sidebar-collapsed .view-selector legend {
+    display: block;
+  }
+
+  #colecoesPage.sidebar-collapsed .view-options {
+    grid-template-columns: repeat(3,1fr);
+    gap: 0;
+    padding: 4px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--surface-2);
+  }
+
+  #colecoesPage.sidebar-collapsed .view-options button {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    display: block;
+    padding: 7px 3px;
+    font-size: 16px;
+  }
+
+  #colecoesPage.sidebar-collapsed .view-options button span {
+    display: block;
+  }
+
 }
 
 @media(max-width:700px){.list-book{grid-template-columns:42px 1fr 80px}.list-book .hide-mobile{display:none}.list-book{gap:10px;padding:8px}.collection-catalog-area{min-width:0}}
@@ -346,11 +447,37 @@ main {
 
 #colecoesPage .shelf-grid.kanban-view{gap:8px}.kanban-column{flex-basis:235px}
 
-.schedule-section{grid-column:1/-1;margin:8px 0 4px;padding:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px}.ongoing-toggle{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;margin:0!important;font-size:14px!important}.ongoing-toggle input{width:18px;height:18px;min-height:auto}.schedule-fields{margin-top:16px}.schedule-fields>label,.monthly-schedule{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700}.schedule-label{display:block;margin-bottom:8px;font-size:12px;font-weight:700}.weekly-schedule{margin:15px 0}.monthly-schedule small{color:var(--muted);font-weight:400}.next-release{margin:7px 0 0!important;color:var(--accent)!important;font-size:10px!important;font-weight:700}.list-book{position:relative;padding-bottom:22px}.list-book>.next-release{position:absolute;left:72px;bottom:5px}.kanban-card .next-release{line-height:1.25}.shelf-card>.next-release{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#colecoesPage:has(.kanban-view) .collections-layout{gap:10px}
+#colecoesPage:has(.kanban-view) .collection-catalog-area{gap:10px}
+#colecoesPage:has(.kanban-view) .collection-tabs{margin-bottom:0}
+#colecoesPage:has(.kanban-view) .kanban-group-tabs{margin:0 2px 8px;padding-top:7px}
+#colecoesPage:has(.kanban-view) .shelf-summary{margin:0}
+#colecoesPage .shelf-grid.kanban-view{gap:7px;padding-bottom:8px}
+#colecoesPage .kanban-column{flex-basis:220px;padding:8px;border-radius:10px}
+#colecoesPage .kanban-head{margin-bottom:7px;padding:0 1px}
+#colecoesPage .kanban-stack{gap:6px;padding:0 1px 6px}
+#colecoesPage .kanban-card{grid-template-columns:44px minmax(0,1fr);gap:8px;padding:7px}
+#colecoesPage .kanban-card .kanban-cover{width:44px}
+#colecoesPage .kanban-card h4{font-size:11px;margin:1px 0 5px}
+#colecoesPage .kanban-card p{font-size:9px}
+#colecoesPage .kanban-card .quick-read{min-height:24px;margin-top:6px;font-size:8px}
+#colecoesPage .kanban-empty{padding:12px 4px}
+
+.schedule-section{grid-column:1/-1;margin:8px 0 4px;padding:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px}.ongoing-toggle{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;margin:0!important;font-size:14px!important}.ongoing-toggle input{width:18px;height:18px;min-height:auto}.schedule-fields{margin-top:16px}.schedule-fields>label,.monthly-schedule{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700}.schedule-label{display:block;margin-bottom:8px;font-size:12px;font-weight:700}.weekly-schedule{margin:15px 0}.monthly-schedule small{color:var(--muted);font-weight:400}.next-release{margin:7px 0 0!important;color:var(--accent)!important;font-size:10px!important;font-weight:700}.next-release.is-available{display:inline-flex;align-items:center;width:max-content;max-width:100%;padding:4px 7px;border-radius:999px;background:rgba(143,193,164,.16);color:var(--accent)!important;border:1px solid rgba(143,193,164,.32);letter-spacing:.2px}.list-book{position:relative;padding-bottom:22px}.list-book>.next-release{position:absolute;left:72px;bottom:5px}.kanban-card .next-release{line-height:1.25}.shelf-card>.next-release{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .quick-read{min-height:32px;padding:0 9px;font-size:10px;text-transform:uppercase;letter-spacing:.2px}.quick-read:disabled{opacity:.45;cursor:not-allowed}.shelf-card>.quick-read{width:100%;margin-top:9px}.kanban-card .quick-read{width:100%;min-height:27px;margin-top:7px;padding:0 5px;font-size:8px}.list-book>.quick-read{position:absolute;right:12px;bottom:6px;min-height:28px}.list-book{padding-right:112px;padding-bottom:12px}.list-book>.next-release{bottom:7px;max-width:calc(100% - 290px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.read-btn,.quick-read,.detail-side [data-read]{--read-hover-fill:var(--accent);position:relative;overflow:hidden;isolation:isolate}.read-btn::before,.quick-read::before,.detail-side [data-read]::before{content:"";position:absolute;z-index:-1;width:210px;height:150px;border-radius:50%;background:var(--read-hover-fill);top:100%;left:100%;transition:top .7s ease,left .7s ease}.read-btn:not(:disabled):hover,.quick-read:not(:disabled):hover,.detail-side [data-read]:not(:disabled):hover{color:#fff}.read-btn:not(:disabled):hover::before,.quick-read:not(:disabled):hover::before,.detail-side [data-read]:not(:disabled):hover::before{top:-30px;left:-30px}.read-btn:not(:disabled):active::before,.quick-read:not(:disabled):active::before,.detail-side [data-read]:not(:disabled):active::before{background:color-mix(in srgb,var(--accent) 82%,#000);transition:background 0s}
 .kanban-card{grid-template-columns:50px minmax(0,1fr);align-items:stretch}.kanban-card .kanban-cover{width:50px;height:100%;min-height:100%;aspect-ratio:auto;align-self:stretch;object-fit:cover}.kanban-card .kanban-cover.cover-placeholder{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .shelf-grid.kanban-view,.kanban-view .kanban-column,.kanban-view .kanban-stack{cursor:grab}.shelf-grid.kanban-view.panning,.kanban-view.panning .kanban-column,.kanban-view.panning .kanban-stack{cursor:grabbing;user-select:none}.kanban-view .kanban-card{cursor:grab}
-.table-view .shelf-card{height:100%;display:flex;flex-direction:column;min-width:0}.table-view .shelf-card h3{height:34px;min-height:34px;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden}.table-view .shelf-card .meta-row{height:17px;min-height:17px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.table-view .shelf-card>.progress{margin-top:5px;margin-bottom:14px}.table-view .shelf-card>.quick-read{margin-top:auto}.release-cover-badge{position:absolute;left:0;right:0;bottom:0;z-index:2;width:100%;max-width:none;padding:8px 10px;border-radius:0;background:rgba(255,255,255,.94);color:var(--accent);font-size:9px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;backdrop-filter:blur(5px);box-shadow:0 -3px 12px rgba(0,0,0,.12)}
+.table-view .shelf-card{height:100%;display:flex;flex-direction:column;min-width:0}.table-view .shelf-card h3{height:18px;min-height:18px;margin-bottom:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.table-view .shelf-card .meta-row{height:17px;min-height:17px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.table-view .shelf-card>.progress{margin-top:5px;margin-bottom:14px}.table-view .shelf-card>.quick-read{margin-top:auto}.release-cover-badge{position:absolute;left:0;right:0;bottom:0;z-index:2;width:100%;max-width:none;padding:8px 6px;border-radius:0;background:rgba(255,255,255,.94);color:var(--accent);font-size:10px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;backdrop-filter:blur(5px);box-shadow:0 -3px 12px rgba(0,0,0,.12)}.release-cover-badge.is-available{background:rgba(143,193,164,.94);color:#17211a;letter-spacing:.2px}
+
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--app-header-height:74px}
+body{padding-bottom:var(--safe-bottom)}
+.topbar,.public-header{height:calc(var(--app-header-height) + var(--safe-top));padding-top:var(--safe-top)}
+.public-main{padding-bottom:calc(80px + var(--safe-bottom))}
+.modal-backdrop{padding-top:calc(20px + var(--safe-top));padding-bottom:calc(20px + var(--safe-bottom))}
+#dashboardPage .filters{top:calc(var(--app-header-height) + var(--safe-top));height:calc(100vh - var(--app-header-height) - var(--safe-top))}
+#colecoesPage:has(.kanban-view) .collections-layout{height:calc(100vh - var(--app-header-height) - var(--safe-top))}
+@media(max-width:900px){.main-nav{top:calc(var(--app-header-height) + var(--safe-top))}}
 
 @media (max-width: 900px) {
   #colecoesPage:has(.kanban-view) .collections-layout {
@@ -361,4 +488,54 @@ main {
   #colecoesPage:has(.kanban-view) .collection-catalog-area {
     height: calc(100vh - 145px);
   }
+}
+
+.status-chip {
+  background: color-mix(in srgb, var(--pill-color, var(--accent)) 82%, #141814);
+}
+
+.tag,
+.check-pill span {
+  border-color: color-mix(in srgb, var(--pill-color, var(--accent)) 40%, var(--line));
+  background: color-mix(in srgb, var(--pill-color, var(--accent)) 14%, transparent);
+  color: color-mix(in srgb, var(--pill-color, var(--accent)) 88%, var(--text));
+}
+
+.check-pill input:checked + span {
+  background: var(--pill-color, var(--accent));
+  color: #fff;
+  border-color: var(--pill-color, var(--accent));
+}
+
+.taxonomy-form input[type="color"],
+.color-input {
+  width: 42px;
+  min-width: 42px;
+  padding: 4px;
+}
+
+.taxonomy-item > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--pill-color, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pill-color, var(--accent)) 18%, transparent);
+}
+
+.status-manager {
+  margin-top: 24px;
+}
+
+.status-name-input {
+  width: min(220px, 42vw);
+  min-height: 34px;
+  padding: 6px 9px;
 }
