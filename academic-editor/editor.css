@@ -1,0 +1,72 @@
+#dissertacaoPage .word-shell { grid-template-columns: 230px minmax(0,1fr); height: calc(100dvh - 74px); min-height: 0; }
+#dissertacaoPage .word-sidebar { position: static; height: 100%; padding: 16px; box-shadow: none; }
+#dissertacaoPage .word-sidebar .panel-title p { display: none; }
+#dissertacaoPage .word-workspace { min-height: 0; background: #e2e4e7; }
+#dissertacaoPage .academic-sidebar-hidden { grid-template-columns: minmax(0,1fr); }
+#dissertacaoPage .academic-sidebar-hidden .word-sidebar { display: none; }
+.academic-document-header { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.academic-document-header input { flex: 1; min-width: 0; border: 1px solid transparent; background: transparent; color: var(--text); font-size: 16px; font-weight: 600; padding: 5px; border-radius: 4px; }
+.academic-document-header input:hover,.academic-document-header input:focus { border-color: var(--line); }
+#academicSaveState { font-size: 12px; color: var(--muted); max-width: 230px; }
+#academicToolbar { position: relative; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.academic-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 8px 12px; }
+.academic-toolbar button,.academic-find button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 5px; flex: 0 0 auto; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text); cursor: pointer; }
+.academic-toolbar button:hover,.academic-toolbar button[aria-pressed="true"],.academic-find button:hover { background: var(--accent-2); color: var(--accent); border-color: var(--line); }
+.academic-toolbar svg,.academic-find svg { width: 17px; height: 17px; stroke-width: 1.7; }
+.academic-toolbar select { width: auto; max-width: 155px; height: 30px; padding: 3px 5px; border-radius: 4px; border: 1px solid var(--line); font: 12px Arial,sans-serif; color: var(--text); background: var(--surface); }
+.academic-toolbar [data-academic-control="size"] { width: 50px; }
+.academic-toolbar input[type="color"] { width: 28px; height: 30px; padding: 4px; border: 0; background: transparent; cursor: pointer; }
+.academic-toolbar .academic-reference-btn { width: auto; gap: 5px; padding: 4px 8px; font-size: 12px; color: var(--accent); }
+.academic-find { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-top: 1px solid var(--line); }
+.academic-find[hidden] { display: none; }
+.academic-find input { width: 230px; padding: 6px 8px; font-size: 13px; }
+.academic-find output { font-size: 12px; color: var(--muted); min-width: 80px; }
+#dissertacaoPage .word-page-wrap { padding: 28px 24px; min-height: 0; overflow: auto; flex: 1; scroll-behavior: auto; }
+.academic-document { display: block; width: 793.7px; margin: 0 auto; }
+.academic-document,.academic-document * { box-sizing: border-box; }
+.academic-prose { width: 793.7px; min-height: 1122.52px; padding: 113.386px 75.591px; padding-bottom: 75.591px; background: #fff; color: #000; font: 12pt/1.5 'Times New Roman',serif; letter-spacing: 0; text-align: justify; outline: none; position: relative; box-shadow: 0 2px 8px #00000012; caret-color: #111; overflow-wrap: break-word; }
+/* The editor stays continuous while the background preserves the A4 rhythm. */
+.academic-page-guide { display: block; box-sizing: border-box; height: 216.977px; width: calc(100% + 151.182px); margin-left: -75.591px; margin-right: -75.591px; background: linear-gradient(to bottom,#fff 0,#fff 75.591px,#e2e4e7 75.591px,#e2e4e7 103.591px,#fff 103.591px,#fff 100%); pointer-events: none; }
+.academic-prose p { font: inherit; color: inherit; margin: 0; text-indent: 0; }
+.academic-prose > p { margin-bottom: 12pt; }
+.academic-prose p[style*="text-align: center"],.academic-prose p[style*="text-align:center"],.academic-prose h1[style*="text-align: center"],.academic-prose h2[style*="text-align: center"],.academic-prose h3[style*="text-align: center"] { text-align: center !important; text-indent: 0; }
+.academic-prose em,.academic-prose i { font-style: italic !important; }
+.academic-prose h1,.academic-prose h2,.academic-prose h3 { font: bold 12pt/1.5 'Times New Roman',serif; color: inherit; margin: 18pt 0 12pt; text-indent: 0; letter-spacing: 0; }
+.academic-prose h1 { text-transform: uppercase; }
+.academic-prose ul,.academic-prose ol { margin: 0; padding-left: 1.25cm; }
+.academic-prose li p { text-indent: 0; }
+.academic-prose blockquote { margin: 12pt 0 12pt 4cm; border: none; padding: 0; font: 10pt/1 'Times New Roman',serif; }
+.academic-prose blockquote p { text-indent: 0; }
+.academic-prose [data-academic-style="caption"] { font: 10pt/1 'Times New Roman',serif; text-indent: 0; text-align: center; }
+.academic-prose [data-academic-style="reference"] { text-indent: 0; line-height: 1; text-align: left; margin: 12pt 0; }
+.academic-prose .academic-citation { color: #2f7d58; cursor: pointer; }
+.academic-prose .academic-citation:hover,.academic-prose .academic-citation.ProseMirror-selectednode { background: #d9ebe1; outline: 1px solid #8aba9f; }
+.academic-prose .academic-bibliography { text-align: left; font: 12pt/1.5 'Times New Roman',serif; color: #000; user-select: text; }
+.academic-bibliography h2 { font: bold 12pt/1.5 'Times New Roman',serif; text-align: center; margin: 12pt 0; text-transform: none; }
+.academic-bibliography p { font: 12pt/1.5 'Times New Roman',serif; text-align: left; margin: 12pt 0; text-indent: 0; }
+.academic-prose table { border-collapse: collapse; width: 100%; margin: 12pt 0; }
+.academic-prose td,.academic-prose th { border: 1px solid #a0a0a0; padding: 5px; min-width: 30px; }
+.academic-prose td p,.academic-prose th p { text-indent: 0; }
+/* Page numbers occupy the margin, without changing the usable page height. */
+.academic-status { display: flex; align-items: center; min-height: 28px; padding: 5px 16px; border-top: 1px solid var(--line); background: var(--surface); font-size: 11px; color: var(--muted); }
+.reference-manager-tools { display: flex; gap: 8px; margin: 12px 0; }
+#referenceForm label[hidden] { display: none; }
+.reference-manager-tools input { min-width: 0; flex: 1; }
+.reference-manager-list { max-height: 55vh; overflow-y: auto; }
+.reference-manager-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.reference-manager-item > div { flex: 1; min-width: 0; }
+.reference-manager-item strong,.reference-manager-item small { display: block; }
+.reference-manager-item small { color: var(--muted); margin-top: 3px; }
+@media(max-width: 1000px) {
+  #dissertacaoPage .word-shell { grid-template-columns: 180px minmax(0,1fr); }
+  .academic-toolbar { flex-wrap: nowrap; overflow-x: auto; }
+  .academic-toolbar select { flex-shrink: 0; }
+}
+@media(max-width: 700px) {
+  #dissertacaoPage .word-shell { grid-template-columns: minmax(0,1fr); height: calc(100dvh - 74px); }
+  #dissertacaoPage .word-sidebar { display: none; }
+  #dissertacaoPage .word-page-wrap { padding: 14px; }
+  .academic-document-header { padding: 8px; gap: 8px; }
+  #academicSaveState { max-width: 100px; font-size: 10px; }
+  .academic-find input { width: 140px; }
+}

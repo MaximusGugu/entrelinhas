@@ -1,5 +1,6 @@
 const APP_VERSION = 2;
 const STORE_KEY = 'entrelinhas-data-v1';
+const PRE_SYNC_BACKUP_KEY = 'entrelinhas-data-pre-sync-backup-v1';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -28,7 +29,12 @@ const REFERENCE_TYPES = [
   { id: 'site', nome: 'Artigo em site / revista online' },
   { id: 'documento_institucional', nome: 'Documento institucional online' },
   { id: 'capitulo', nome: 'Capítulo de livro' },
-  { id: 'relatorio', nome: 'Relatório / diretriz / norma / política' }
+  { id: 'relatorio', nome: 'Relatório / diretriz / norma / política' },
+  { id: 'dissertacao', nome: 'Dissertação' },
+  { id: 'tese', nome: 'Tese' },
+  { id: 'tcc', nome: 'Trabalho de conclusão de curso' },
+  { id: 'legislacao', nome: 'Legislação' },
+  { id: 'outro', nome: 'Outro' }
 ];
 const AUTHORSHIP_TYPES = [
   { id: 'pessoa', nome: 'Pessoa' },
@@ -271,6 +277,50 @@ function ensureDissertationDocument(document, index = 0) {
   return normalized;
 }
 
+function normalizeTaxonomyItems(items = [], fallback = 'Item') {
+  return asArray(items).map((item, index) => {
+    if (item && typeof item === 'object') {
+      return { id: item.id || uid(), nome: item.nome || item.name || `${fallback} ${index + 1}`, cor: item.cor || PALETTE[index % PALETTE.length] };
+    }
+    return { id: uid(), nome: String(item || `${fallback} ${index + 1}`), cor: PALETTE[index % PALETTE.length] };
+  });
+}
+
+function normalizeTaskItem(item = {}) {
+  return {
+    id: item.id || uid(),
+    texto: String(item.texto || item.title || item.nome || item.descricao || item.description || '').trim() || 'Tarefa sem título',
+    done: Boolean(item.done || item.concluido || item.completed),
+    due: String(item.due || item.prazo || item.data || '').trim(),
+    priority: String(item.priority || item.prioridade || 'media').trim()
+  };
+}
+
+function normalizeTaskList(list = {}, index = 0) {
+  const items = asArray(list.items).length ? asArray(list.items) : asArray(list.tarefas || list.tasks);
+  return {
+    id: list.id || uid(),
+    nome: String(list.nome || list.name || list.titulo || `Checklist ${index + 1}`).trim(),
+    data: String(list.data || list.date || list.prazo || '').trim(),
+    items: items.map(normalizeTaskItem),
+    criadoEm: list.criadoEm || now(),
+    atualizadoEm: list.atualizadoEm || list.criadoEm || now()
+  };
+}
+
+function taskListsFromLegacyReminders(data) {
+  const reminders = asArray(data.lembretes).length ? asArray(data.lembretes) : asArray(data.reminders);
+  if (!reminders.length) return [];
+  return [normalizeTaskList({
+    nome: 'Lembretes importados',
+    items: reminders.map(reminder => ({
+      texto: reminder.texto || reminder.titulo || reminder.nome || reminder.title,
+      due: reminder.data || reminder.prazo || reminder.due,
+      done: reminder.done || reminder.concluido
+    }))
+  })];
+}
+
 function activeDissertation() {
   if (!Array.isArray(state.dissertations) || !state.dissertations.length) {
     const document = ensureDissertationDocument(defaultDissertation());
@@ -289,21 +339,23 @@ function activeDissertation() {
 
 function normalizeStateData(data) {
   if (!data || typeof data !== 'object') return demo();
-  const legacyDissertation = data.dissertation || defaultDissertation();
-  const dissertations = Array.isArray(data.dissertations) && data.dissertations.length ? data.dissertations : [legacyDissertation];
+  const settings = data.settings && typeof data.settings === 'object' ? data.settings : {};
+  const legacyDissertation = data.dissertation && typeof data.dissertation === 'object' ? data.dissertation : defaultDissertation();
+  const dissertations = asArray(data.dissertations).length ? asArray(data.dissertations) : [legacyDissertation];
+  const importedTaskLists = asArray(data.taskLists).length ? asArray(data.taskLists) : taskListsFromLegacyReminders(data);
   const migrated = {
     version: APP_VERSION,
-    referenceCategories: data.referenceCategories || data.categories || [],
-    referenceTags: data.referenceTags || data.tags || [],
-    references: data.references || [],
-    ideas: data.ideas || [],
-    ideaLinks: data.ideaLinks || [],
-    taskLists: data.taskLists || [],
-    glossary: data.glossary || [],
+    referenceCategories: normalizeTaxonomyItems(asArray(data.referenceCategories).length ? data.referenceCategories : data.categories, 'Categoria'),
+    referenceTags: normalizeTaxonomyItems(asArray(data.referenceTags).length ? data.referenceTags : data.tags, 'Tag'),
+    references: asArray(data.references),
+    ideas: asArray(data.ideas),
+    ideaLinks: asArray(data.ideaLinks),
+    taskLists: importedTaskLists.map(normalizeTaskList),
+    glossary: asArray(data.glossary),
     dissertations: dissertations.map(ensureDissertationDocument),
     activeDissertationId: data.activeDissertationId || '',
     dissertation: null,
-    settings: { ...(data.settings || {}) }
+    settings: { ...settings }
   };
   migrated.referenceCategories.forEach((item, index) => item.cor = item.cor || PALETTE[index % PALETTE.length]);
   migrated.referenceTags.forEach((item, index) => item.cor = item.cor || PALETTE[(index + 2) % PALETTE.length]);
@@ -365,8 +417,13 @@ const Store = {
   },
   valid(data) {
     return data && typeof data === 'object' && (
-      Array.isArray(data.references) || Array.isArray(data.works)
-    ) && data.settings && typeof data.settings === 'object';
+      Array.isArray(data.references) ||
+      Array.isArray(data.works) ||
+      Array.isArray(data.dissertations) ||
+      Array.isArray(data.taskLists) ||
+      Array.isArray(data.lembretes) ||
+      data.dissertation
+    );
   },
   save() {
     state.dissertation = activeDissertation();
@@ -378,10 +435,16 @@ const Store = {
         toast('Dados salvos neste dispositivo; sincronização pendente');
       });
     }
+  },
+  saveDocument() {
+    state.dissertation = activeDissertation();
+    localStorage.setItem(this.key, JSON.stringify(state));
+    const user = window.FirebaseBackend?.auth.currentUser;
+    return syncReady && user ? window.FirebaseBackend.saveState(user.uid, state) : Promise.resolve();
   }
 };
 
-let state = Store.load();
+let state;
 let currentModal = null;
 let syncReady = false;
 let authMode = 'login';
@@ -398,6 +461,7 @@ const statusColor = id => statusById(id)?.cor || '#6f746d';
 const refTypeName = id => REFERENCE_TYPES.find(type => type.id === id)?.nome || id || 'Outro';
 const chipStyle = color => `style="--pill-color:${esc(color || '#6f746d')}"`;
 const itemColor = item => item?.cor || '#6f746d';
+const asArray = value => Array.isArray(value) ? value : [];
 const fieldValue = (reference, ...fields) => {
   for (const field of fields) {
     const value = reference?.[field];
@@ -412,6 +476,7 @@ const referenceType = reference => {
 const referenceYear = reference => fieldValue(reference, 'ano') || fieldValue(reference, 'dataPublicacaoCompleta').slice(0, 4) || 's.d.';
 const referenceUrl = reference => fieldValue(reference, 'url');
 const referenceDoi = reference => fieldValue(reference, 'doi');
+state = Store.load();
 
 function toast(message) {
   const toastEl = document.createElement('div');
@@ -436,6 +501,7 @@ function authorsList(reference) {
 }
 
 function authorLastName(author = '') {
+  if (author.includes(',')) return author.split(',')[0].trim();
   const parts = author.trim().split(/\s+/).filter(Boolean);
   return parts.length ? parts[parts.length - 1] : '';
 }
@@ -447,6 +513,7 @@ function abntAuthors(reference) {
   const authors = authorsList(reference);
   if (!authors.length) return '';
   return authors.map(author => {
+    if (author.includes(',')) { const [last, ...first] = author.split(','); return `${last.trim().toUpperCase()}, ${first.join(',').trim()}`; }
     const parts = author.trim().split(/\s+/);
     const last = (parts.pop() || '').toUpperCase();
     return `${last}, ${parts.join(' ')}`.trim();
@@ -503,6 +570,12 @@ function formatAbnt(reference) {
   const year = referenceYear(reference);
   const edition = fieldValue(reference, 'edicao') ? ` ${fieldValue(reference, 'edicao')}.` : '';
   const pages = fieldValue(reference, 'paginas') ? ` p. ${fieldValue(reference, 'paginas')}.` : '';
+  if (['dissertacao', 'tese', 'tcc'].includes(type)) {
+    const kind = { dissertacao: 'Dissertação', tese: 'Tese', tcc: 'Trabalho de conclusão de curso' }[type];
+    const degree = [reference.grau, reference.curso].filter(Boolean).join(' em ');
+    return `${entry}. ${title}. ${year}. ${reference.totalPaginas ? reference.totalPaginas + ' f. ' : ''}${kind}${degree ? ' (' + degree + ')' : ''} — ${reference.instituicaoAcademica || 'Instituição não informada'}, ${city}, ${year}.${abntAccess(reference)}`;
+  }
+  if (type === 'legislacao') return `${reference.jurisdicao || entry}. ${reference.tipoDocumento || 'Lei'} ${reference.numeroDocumento || ''}, ${publicationDateText(reference)}. ${title}. ${reference.veiculoPublicacao || ''}${city ? ', ' + city : ''}, ${year}.${abntAccess(reference)}`;
   if (type === 'artigo') {
     const journal = fieldValue(reference, 'periodico') || 'Periódico não informado';
     const place = fieldValue(reference, 'localPeriodico');
@@ -560,6 +633,7 @@ function formatReferenceDate(value) {
 }
 
 const REFERENCE_FIELDS = [
+  'tituloObra', 'instituicaoAcademica', 'curso', 'grau', 'jurisdicao', 'veiculoPublicacao',
   'tipoReferencia', 'autoriaTipo', 'autores', 'autorInstitucional', 'organizadores', 'tradutores',
   'titulo', 'subtitulo', 'ano', 'dataPublicacaoCompleta', 'mesPublicacao', 'idioma', 'notasPublicacao',
   'edicao', 'localPublicacao', 'editora', 'isbn', 'totalPaginas', 'suporte', 'colecao',
@@ -589,6 +663,12 @@ function referenceExportPayload() {
       const category = byId(state.referenceCategories, reference.categoriaId);
       const tags = (reference.tagIds || []).map(id => byId(state.referenceTags, id)).filter(Boolean);
       return {
+        tituloObra: reference.tituloObra || '',
+        instituicaoAcademica: reference.instituicaoAcademica || '',
+        curso: reference.curso || '',
+        grau: reference.grau || '',
+        jurisdicao: reference.jurisdicao || '',
+        veiculoPublicacao: reference.veiculoPublicacao || '',
         tipoReferencia: reference.tipoReferencia,
         autoriaTipo: reference.autoriaTipo,
         autorInstitucional: reference.autorInstitucional,
@@ -757,6 +837,12 @@ function normalizeImportedReference(item = {}) {
   const safeType = REFERENCE_TYPES.some(referenceType => referenceType.id === type) ? type : 'livro';
   return normalizeReferenceSchema({
     id: item.id || uid(),
+    tituloObra: String(item.tituloObra || '').trim(),
+    instituicaoAcademica: String(item.instituicaoAcademica || '').trim(),
+    curso: String(item.curso || '').trim(),
+    grau: String(item.grau || '').trim(),
+    jurisdicao: String(item.jurisdicao || '').trim(),
+    veiculoPublicacao: String(item.veiculoPublicacao || '').trim(),
     tipoReferencia: safeType,
     autoriaTipo: String(item.autoriaTipo || 'pessoa').trim(),
     titulo: String(item.titulo || item.title || '').trim() || 'Referência sem título',
@@ -1184,111 +1270,12 @@ function extractNumberedHeadings(html = '') {
   }).filter(Boolean);
 }
 
-function updateEditorHeadingClasses(root) {
-  if (!root) return;
-  root.querySelectorAll('.dynamic-heading').forEach(node => node.classList.remove('dynamic-heading', 'level-1', 'level-2', 'level-3'));
-  const blockSelector = 'p, div, h1, h2, h3, h4, li, ul, ol, table, blockquote';
-  root.querySelectorAll('p, div, h1, h2, h3, h4, li').forEach(node => {
-    if ([...node.children].some(child => child.matches?.(blockSelector))) return;
-    const match = (node.textContent || '').trim().match(/^(\d+(?:\.\d+)*)\s+.+/);
-    if (!match) return;
-    node.classList.add('dynamic-heading', `level-${Math.min(match[1].split('.').length, 3)}`);
-  });
-}
-
-function saveDissertationEditor(target) {
-  const dissertation = activeDissertation();
-  dissertation.contentHtml = window.DissertationEditor?.commit({ rerender: false }) || dissertation.contentHtml || '<p><br></p>';
-  dissertation.atualizadoEm = now();
-  renderDocumentOutline();
-}
-
-function focusEditor() {
-  const editor = $('[data-page-body]');
-  if (!editor) return null;
-  editor.focus();
-  return editor;
-}
-
 function storeEditorSelection() {
   window.DissertationEditor?.storeSelection();
 }
 
-function insertTextAtSavedCursor(text) {
-  const html = window.DissertationEditor?.insertTextAtBookmark(text);
-  if (!html) return false;
-  const dissertation = activeDissertation();
-  dissertation.contentHtml = html;
-  dissertation.atualizadoEm = now();
-  renderDocumentOutline();
-  window.DissertationEditor?.render({
-    container: $('#documentPage'),
-    html: dissertation.contentHtml,
-    references: referencedAbntList(),
-    fontSize: String(state.settings.documentFontSize || '12')
-  });
-  Store.save();
-  return true;
-}
-
-function nextHeadingNumber(level = 1) {
-  const headings = extractNumberedHeadings(editorHtml());
-  if (level === 1) {
-    const topNumbers = headings.filter(item => item.level === 1).map(item => Number(item.number.split('.')[0])).filter(Number.isFinite);
-    return String(Math.max(0, ...topNumbers) + 1);
-  }
-  const lastSameOrParent = [...headings].reverse().find(item => item.level <= level);
-  const parts = lastSameOrParent ? lastSameOrParent.number.split('.').map(Number) : [1];
-  while (parts.length < level) parts.push(0);
-  parts.length = level;
-  parts[level - 1] += 1;
-  return parts.join('.');
-}
-
-function editorSnippet(type) {
-  const snippets = {
-    heading1: `<p>${nextHeadingNumber(1)} Nova seção</p>`,
-    heading2: `<p>${nextHeadingNumber(2)} Nova subseção</p>`,
-    heading3: `<p>${nextHeadingNumber(3)} Novo tópico</p>`,
-    paragraph: '<p>Novo parágrafo.</p>',
-    quote: '<blockquote>Citação longa.</blockquote>',
-    schedule: scheduleTable('Atividade | Mês 1 | Mês 2\nNova atividade | X | ')
-  };
-  return snippets[type] || '<p>Novo texto.</p>';
-}
-
-function insertHtmlIntoEditor(html) {
-  const clean = window.DissertationEditor?.insertHtmlAtSelection(html, { rerender: true });
-  if (clean) {
-    const dissertation = activeDissertation();
-    dissertation.contentHtml = clean;
-    dissertation.atualizadoEm = now();
-    renderDocumentOutline();
-  }
-  Store.save();
-}
-
-function appendCitationToEditor(text) {
-  insertTextAtSavedCursor(text);
-}
-
-function textToEditorHtml(text = '') {
-  return window.DissertationEditor?.textToHtml(text) || '<p><br></p>';
-}
-
-function syncEditorPages() {
-  window.DissertationEditor?.render();
-}
-
-function blockContent(block) {
-  return block.html || esc(block.text || '');
-}
-
 function renderDocumentOutline() {
-  const outline = $('#documentOutline');
-  if (!outline) return;
-  const headings = window.DissertationEditor?.extractHeadings(editorHtml()) || extractNumberedHeadings(editorHtml());
-  outline.innerHTML = headings.map((heading, index) => `<button type="button" class="outline-link level-${heading.level}" data-jump-heading="${index}"><span>${esc(heading.number)}</span>${esc(heading.title || 'Sem título')}</button>`).join('') || '<p>Nenhum título numerado encontrado.</p>';
+  // The editor owns the live outline; document cards use serialized headings.
 }
 
 function renderDocumentTabs() {
@@ -1304,106 +1291,29 @@ function renderDocumentTabs() {
   }).join('');
 }
 
-function estimateBlockSize(block) {
-  const textLength = String(block.text || '').length;
-  if (block.type === 'schedule') return 260;
-  if (block.type === 'quote') return 150 + Math.ceil(textLength / 95) * 24;
-  if (block.type === 'list') return 80 + String(block.text || '').split('\n').length * 26;
-  if (block.type === 'heading1') return 82;
-  if (block.type === 'heading2') return 64;
-  if (block.type === 'heading3') return 54;
-  return 70 + Math.ceil(textLength / 115) * 26;
-}
-
-function paginateBlocks(blocks) {
-  const pages = [];
-  let page = [];
-  let used = 0;
-  const limit = 790;
-  blocks.forEach(block => {
-    const size = estimateBlockSize(block);
-    if (page.length && used + size > limit) {
-      pages.push(page);
-      page = [];
-      used = 0;
-    }
-    page.push(block);
-    used += size;
-  });
-  if (page.length) pages.push(page);
-  return pages.length ? pages : [[]];
-}
-
 function renderDissertation() {
+  if ($('#dissertacaoPage').classList.contains('hidden')) return;
   const dissertation = activeDissertation();
   renderDocumentTabs();
-  const fontSize = String(state.settings.documentFontSize || '12');
-  const fontSizeField = $('#documentFontSize');
-  if (fontSizeField && fontSizeField.value !== fontSize) fontSizeField.value = fontSize;
-  renderDocumentOutline();
-  const references = referencedAbntList();
   window.DissertationEditor.render({
     container: $('#documentPage'),
-    html: editorHtml(dissertation),
-    references,
-    fontSize,
-    onChange(html) {
-      dissertation.contentHtml = html;
+    document: dissertation,
+    references: state.references,
+    formatBibliography: formatAbnt,
+    onChange(snapshot) {
+      Object.assign(dissertation, snapshot);
       dissertation.atualizadoEm = now();
-      renderDocumentOutline();
-      clearTimeout(dissertationSaveTimer);
-      dissertationSaveTimer = setTimeout(() => Store.save(), 450);
-    }
+    },
+    onSave: () => Store.saveDocument(),
+    onRename(name) { dissertation.nome = name; renderDocumentTabs(); },
+    onSettings(settings) { dissertation.settings = { ...dissertation.settings, ...settings }; },
+    onCitation: citation => insertCitationModal(citation),
+    onLibrary: () => referenceManager()
   });
-}
-
-function blockHtml(block, numbers, citationText = '') {
-  const controls = `<div class="block-actions"><button data-move-block="${block.id}:up" title="Mover para cima">↑</button><button data-move-block="${block.id}:down" title="Mover para baixo">↓</button><button data-delete-block="${block.id}" title="Excluir">×</button></div>`;
-  if (block.type.startsWith('heading')) {
-    const level = Number(block.type.replace('heading', '')) || 1;
-    return `<div class="doc-block" id="block-${block.id}" data-block="${block.id}">${controls}<h${Math.min(level + 1, 4)} contenteditable="true" data-edit-block="${block.id}" spellcheck="true"><span contenteditable="false">${numbers[block.id]}</span> ${esc(block.text)}</h${Math.min(level + 1, 4)}></div>`;
-  }
-  if (block.type === 'quote') return `<div class="doc-block" id="block-${block.id}" data-block="${block.id}">${controls}<blockquote contenteditable="true" data-edit-block="${block.id}" spellcheck="true">${blockContent(block)}</blockquote>${citationText ? `<p class="inline-citation">${esc(citationText)}</p>` : ''}</div>`;
-  if (block.type === 'list') return `<div class="doc-block" id="block-${block.id}" data-block="${block.id}">${controls}<ul contenteditable="true" data-edit-block="${block.id}" spellcheck="true">${block.html || String(block.text || '').split('\n').map(item => `<li>${esc(item)}</li>`).join('')}</ul></div>`;
-  if (block.type === 'schedule') return `<div class="doc-block" id="block-${block.id}" data-block="${block.id}">${controls}${scheduleTable(block.text)}</div>`;
-  return `<div class="doc-block" id="block-${block.id}" data-block="${block.id}">${controls}<p contenteditable="true" data-edit-block="${block.id}" spellcheck="true">${blockContent(block)}</p>${citationText ? `<p class="inline-citation">${esc(citationText)}</p>` : ''}</div>`;
 }
 
 function scheduleTable(text = '') {
-  const rows = text.split('\n').map(row => row.split('|').map(cell => cell.trim()));
-  return `<table class="doc-table" contenteditable="true" data-edit-table><tbody>${rows.map((row, index) => `<tr>${row.map(cell => `<${index ? 'td' : 'th'}>${esc(cell)}</${index ? 'td' : 'th'}>`).join('')}</tr>`).join('')}</tbody></table>`;
-}
-
-function updateBlockFromEditable(target) {
-  const dissertation = activeDissertation();
-  const blockId = target.closest('[data-edit-block]')?.dataset.editBlock;
-  if (!blockId) return null;
-  const block = byId(dissertation.blocks, blockId);
-  if (!block) return null;
-  if (block.type === 'list') {
-    block.text = [...target.querySelectorAll('li')].map(li => li.textContent.trim()).filter(Boolean).join('\n');
-    block.html = target.innerHTML.trim();
-  } else if (block.type.startsWith('heading')) {
-    block.text = target.textContent.replace(/^\d+(\.\d+)*\s*/, '').trim();
-    delete block.html;
-  } else {
-    block.text = target.textContent.trim();
-    block.html = target.innerHTML.trim();
-  }
-  dissertation.atualizadoEm = now();
-  return block;
-}
-
-function updateTableFromEditable(target) {
-  const dissertation = activeDissertation();
-  const blockId = target.closest('[data-block]')?.dataset.block;
-  const block = byId(dissertation.blocks, blockId);
-  if (!block || block.type !== 'schedule') return null;
-  block.text = [...target.querySelectorAll('tr')]
-    .map(row => [...row.children].map(cell => cell.textContent.trim()).join(' | '))
-    .join('\n');
-  dissertation.atualizadoEm = now();
-  return block;
+  return '<table><tbody>' + text.split('\n').map(row => '<tr>' + row.split('|').map(cell => '<td>' + esc(cell.trim()) + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
 }
 
 function renderAll() {
@@ -1497,6 +1407,12 @@ function referenceForm(reference = {}, formOptions = {}) {
       <label>Tipo de documento<select name="tipoDocumento">${DOCUMENT_TYPES.map(type => `<option value="${type.id}" ${reference.tipoDocumento === type.id ? 'selected' : ''}>${esc(type.nome)}</option>`).join('')}</select></label>
       <label>Número do documento<input name="numeroDocumento" value="${esc(reference.numeroDocumento || '')}"></label>
       <label>Instituição publicadora<input name="instituicaoPublicadora" value="${esc(reference.instituicaoPublicadora || '')}"></label>
+      <label>Título da obra principal<input name="tituloObra" value="${esc(reference.tituloObra || '')}"></label>
+      <label>Instituição acadêmica<input name="instituicaoAcademica" value="${esc(reference.instituicaoAcademica || '')}"></label>
+      <label>Curso / área<input name="curso" value="${esc(reference.curso || '')}"></label>
+      <label>Grau<input name="grau" value="${esc(reference.grau || '')}" placeholder="Mestrado"></label>
+      <label>Jurisdição<input name="jurisdicao" value="${esc(reference.jurisdicao || '')}" placeholder="BRASIL"></label>
+      <label>Veículo de publicação<input name="veiculoPublicacao" value="${esc(reference.veiculoPublicacao || '')}" placeholder="Diário Oficial da União"></label>
       <label>Biblioteca<input name="biblioteca" value="${esc(reference.biblioteca || '')}"></label>
       <label>Data de retirada<input name="dataRetirada" type="date" value="${esc(reference.dataRetirada || '')}"></label>
       <label>Data de entrega<input name="dataEntrega" type="date" value="${esc(reference.dataEntrega || '')}"></label>
@@ -1509,6 +1425,7 @@ function referenceForm(reference = {}, formOptions = {}) {
     <div class="form-actions"><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button class="btn btn-primary">Salvar referência</button></div>
   </form>`, 'reference-form');
   $('#referenceForm').elements.categoriaId.value = reference.categoriaId || '';
+  window.DissertationEditor.configureReferenceForm($('#referenceForm'));
 }
 
 function singleReferenceImportForm() {
@@ -1555,18 +1472,41 @@ function citationForm(referenceId) {
   </form>`, 'quote-form');
 }
 
-function insertCitationModal() {
-  if (!state.references.length) {
-    openModal(`<div class="form-modal"><p class="eyebrow">REFERÊNCIA NO TEXTO</p><h2 id="modalTitle">Nenhuma referência cadastrada</h2><p>Cadastre uma referência no banco para inserir citações narrativas ou parentéticas no documento.</p><div class="form-actions"><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button type="button" class="btn btn-primary" data-new-reference-inline>Cadastrar referência</button></div></div>`, 'insert-citation-empty');
-    return;
-  }
-  openModal(`<form class="form-modal" id="insertCitationForm"><p class="eyebrow">REFERÊNCIA NO TEXTO</p><h2 id="modalTitle">Adicionar referência</h2>
-    <label>Referência<select name="referenceId" required>${state.references.map(ref => `<option value="${ref.id}">${esc(ref.titulo)} ${ref.ano ? `(${esc(ref.ano)})` : ''}</option>`).join('')}</select></label>
-    <label>Modo de citação<select name="mode"><option value="narrativa-direta">Santos (2013, p. 24)</option><option value="parentetica-direta">(SANTOS, 2013, p. 24)</option><option value="narrativa-indireta">Santos (2013)</option><option value="parentetica-indireta">(SANTOS, 2013)</option></select></label>
-    <label>Página<input name="page" placeholder="24"></label>
-    <p class="form-hint">A citação será inserida ao final do editor e adicionada automaticamente à lista de referências citadas.</p>
-    <div class="form-actions"><button type="button" class="btn btn-secondary" data-new-reference-inline>Cadastrar nova referência</button><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button class="btn btn-primary">Inserir citação</button></div>
+function insertCitationModal(citation = {}) {
+  const references = window.DissertationEditor.sortReferences(state.references);
+  openModal(`<form class="form-modal" id="insertCitationForm"><h2 id="modalTitle">${citation.id ? 'Editar citação' : 'Adicionar referência'}</h2>
+    <input type="hidden" name="id" value="${esc(citation.id || '')}">
+    <label>Pesquisar<input type="search" id="citationReferenceSearch" placeholder="Autor, título ou ano"></label>
+    <label>Referência<select name="referenceId" required>${references.map(ref => `<option value="${esc(ref.id)}" ${ref.id === citation.referenceId ? 'selected' : ''}>${esc(referenceAuthorshipDisplay(ref))} · ${esc(ref.titulo)} (${esc(ref.ano || 's.d.')})</option>`).join('')}</select></label>
+    <label>Modo de citação<select name="mode"><option value="parentetica">Parentética: (NORMAN, 2026)</option><option value="narrativa">Narrativa: Norman (2026)</option><option value="autor">Somente autor</option><option value="ano">Somente ano</option></select></label>
+    <div class="form-grid"><label>Página<input name="page" value="${esc(citation.page || '')}" placeholder="32"></label><label>Prefixo<input name="prefix" value="${esc(citation.prefix || '')}"></label><label>Sufixo<input name="suffix" value="${esc(citation.suffix || '')}"></label></div>
+    <div class="form-actions"><button type="button" class="btn btn-secondary" data-new-reference-inline>Cadastrar nova referência</button><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button class="btn btn-primary" ${references.length ? '' : 'disabled'}>Inserir citação</button></div>
   </form>`, 'insert-citation');
+  $('#insertCitationForm').elements.mode.value = citation.mode?.startsWith('narrativa') ? 'narrativa' : ['autor','ano'].includes(citation.mode) ? citation.mode : 'parentetica';
+  $('#citationReferenceSearch').oninput = event => {
+    const query = event.target.value.toLocaleLowerCase();
+    const matches = references.filter(ref => `${referenceAuthorshipDisplay(ref)} ${ref.titulo} ${ref.ano}`.toLocaleLowerCase().includes(query));
+    $('#insertCitationForm').elements.referenceId.innerHTML = matches.map(ref => `<option value="${esc(ref.id)}">${esc(referenceAuthorshipDisplay(ref))} · ${esc(ref.titulo)} (${esc(ref.ano || 's.d.')})</option>`).join('');
+  };
+  setTimeout(() => $('#citationReferenceSearch')?.focus(), 20);
+}
+
+function referenceManager() {
+  openModal(`<div class="form-modal"><h2 id="modalTitle">Gerenciar referências</h2>
+    <div class="reference-manager-tools"><input id="managerReferenceSearch" type="search" placeholder="Buscar autor ou título" aria-label="Buscar referência"><select id="managerReferenceFilter" aria-label="Uso da referência"><option value="all">Todas</option><option value="used">Utilizadas</option><option value="unused">Não utilizadas</option></select><button class="small-btn" data-new-reference-inline>Nova</button></div>
+    <div class="reference-manager-list" id="managerReferenceList"></div></div>`, 'reference-manager');
+  const render = () => {
+    const query = $('#managerReferenceSearch').value.toLocaleLowerCase();
+    const filter = $('#managerReferenceFilter').value;
+    $('#managerReferenceList').innerHTML = window.DissertationEditor.sortReferences(state.references).map(ref => {
+      const count = activeDissertation().citations.filter(c => c.referenceId === ref.id).length;
+      if (filter === 'used' && !count || filter === 'unused' && count || !`${ref.titulo} ${referenceAuthorshipDisplay(ref)}`.toLocaleLowerCase().includes(query)) return '';
+      return `<article class="reference-manager-item"><div><strong>${esc(ref.titulo)}</strong><small>${esc(referenceAuthorshipDisplay(ref))} · ${esc(ref.ano)} · ${count ? count + ' citações' : 'Não utilizada'}</small></div><button class="small-btn" data-view-reference="${ref.id}">Ver</button><button class="small-btn" data-edit-reference="${ref.id}">Editar</button><button class="small-btn danger" data-delete-reference="${ref.id}">Excluir</button></article>`;
+    }).join('');
+  };
+  $('#managerReferenceSearch').oninput = render;
+  $('#managerReferenceFilter').onchange = render;
+  render();
 }
 
 function ideaForm(idea = {}) {
@@ -1611,6 +1551,7 @@ function route() {
   const page = (location.hash.slice(1) || 'dashboard').split('/')[0];
   $$('.page').forEach(section => section.classList.add('hidden'));
   $(`#${page}Page`)?.classList.remove('hidden');
+  if (page === 'dissertacao') renderDissertation();
   $$('[data-page]').forEach(link => link.classList.toggle('active', link.dataset.page === page));
   $('#mainNav').classList.remove('open');
   window.scrollTo(0, 0);
@@ -1621,11 +1562,17 @@ document.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
   const fd = new FormData(form);
-  if (form.id === 'referenceForm') {
+  if (form.getAttribute('id') === 'referenceForm') {
     const id = fd.get('id') || uid();
     const old = byId(state.references, id);
     const data = normalizeReferenceSchema({
       id,
+      tituloObra: String(fd.get('tituloObra') || '').trim(),
+      instituicaoAcademica: String(fd.get('instituicaoAcademica') || '').trim(),
+      curso: String(fd.get('curso') || '').trim(),
+      grau: String(fd.get('grau') || '').trim(),
+      jurisdicao: String(fd.get('jurisdicao') || '').trim(),
+      veiculoPublicacao: String(fd.get('veiculoPublicacao') || '').trim(),
       tipoReferencia: fd.get('tipoReferencia'),
       status: fd.get('status'),
       autoriaTipo: fd.get('autoriaTipo'),
@@ -1689,7 +1636,7 @@ document.addEventListener('submit', event => {
     persist('Referência salva');
     if (shouldReopenCitation) insertCitationModal();
   }
-  if (form.id === 'singleReferenceImportForm') {
+  if (form.getAttribute('id') === 'singleReferenceImportForm') {
     try {
       const data = JSON.parse(String(fd.get('json') || ''));
       closeModal();
@@ -1699,7 +1646,7 @@ document.addEventListener('submit', event => {
       toast(error.message === 'Use apenas uma referência' ? 'Cole apenas uma referência' : 'JSON inválido');
     }
   }
-  if (form.id === 'quoteForm') {
+  if (form.getAttribute('id') === 'quoteForm') {
     const reference = byId(state.references, fd.get('referenceId'));
     reference.citacoes.push({ id: uid(), texto: String(fd.get('texto') || '').trim(), pagina: String(fd.get('pagina') || '').trim(), comentario: String(fd.get('comentario') || '').trim(), tagIds: [] });
     reference.atualizadoEm = now();
@@ -1707,20 +1654,18 @@ document.addEventListener('submit', event => {
     persist('Citação cadastrada');
     referenceDetail(reference);
   }
-  if (form.id === 'insertCitationForm') {
+  if (form.getAttribute('id') === 'insertCitationForm') {
     const dissertation = activeDissertation();
     const reference = byId(state.references, fd.get('referenceId'));
     if (!reference) return toast('Selecione uma referência válida');
-    const text = formatCitation(reference, fd.get('mode'), fd.get('page'));
-    dissertation.citations.push({ id: uid(), referenceId: reference.id, mode: fd.get('mode'), page: String(fd.get('page') || '').trim(), text });
-    appendCitationToEditor(text);
+    window.DissertationEditor.insertCitation({ id: fd.get('id') || uid(), referenceId: reference.id, mode: fd.get('mode'), page: String(fd.get('page') || '').trim(), prefix: String(fd.get('prefix') || ''), suffix: String(fd.get('suffix') || '') });
     dissertation.atualizadoEm = now();
     reference.status = 'citado';
     closeModal();
     persist('Citação inserida');
     location.hash = '#dissertacao';
   }
-  if (form.id === 'ideaForm') {
+  if (form.getAttribute('id') === 'ideaForm') {
     const id = fd.get('id') || uid();
     const old = byId(state.ideas, id);
     const data = { id, titulo: String(fd.get('titulo') || '').trim(), texto: String(fd.get('texto') || '').trim(), cor: fd.get('cor'), x: old?.x ?? 80, y: old?.y ?? 90, tagIds: old?.tagIds || [], criadoEm: old?.criadoEm || now(), atualizadoEm: now() };
@@ -1728,7 +1673,7 @@ document.addEventListener('submit', event => {
     closeModal();
     persist('Ideia salva');
   }
-  if (form.id === 'taskListForm') {
+  if (form.getAttribute('id') === 'taskListForm') {
     const id = fd.get('id') || uid();
     const old = byId(state.taskLists, id);
     const data = { id, nome: String(fd.get('nome') || '').trim(), data: String(fd.get('data') || ''), items: old?.items || [], criadoEm: old?.criadoEm || now(), atualizadoEm: now() };
@@ -1736,14 +1681,14 @@ document.addEventListener('submit', event => {
     closeModal();
     persist('Checklist salva');
   }
-  if (form.id === 'taskItemForm') {
+  if (form.getAttribute('id') === 'taskItemForm') {
     const list = byId(state.taskLists, fd.get('listId'));
     list.items.push({ id: uid(), texto: String(fd.get('texto') || '').trim(), due: String(fd.get('due') || ''), priority: fd.get('priority'), done: false });
     list.atualizadoEm = now();
     closeModal();
     persist('Item adicionado');
   }
-  if (form.id === 'glossaryForm') {
+  if (form.getAttribute('id') === 'glossaryForm') {
     const id = fd.get('id') || uid();
     const old = byId(state.glossary, id);
     const data = { id, termo: String(fd.get('termo') || '').trim(), sigla: String(fd.get('sigla') || '').trim(), significado: String(fd.get('significado') || '').trim(), notas: String(fd.get('notas') || '').trim(), referenceId: String(fd.get('referenceId') || ''), criadoEm: old?.criadoEm || now(), atualizadoEm: now() };
@@ -1751,28 +1696,28 @@ document.addEventListener('submit', event => {
     closeModal();
     persist('Termo salvo');
   }
-  if (form.id === 'dissertationMetaForm') {
+  if (form.getAttribute('id') === 'dissertationMetaForm') {
     const dissertation = activeDissertation();
     Object.keys(dissertation.meta).forEach(key => dissertation.meta[key] = String(fd.get(key) || '').trim());
     dissertation.nome = dissertation.meta.titulo || dissertation.nome;
     dissertation.atualizadoEm = now();
     persist('Metadados salvos');
   }
-  if (form.id === 'displayNameForm') {
+  if (form.getAttribute('id') === 'displayNameForm') {
     state.settings.displayName = $('#displayNameInput').value.trim();
     persist('Nome salvo');
   }
-  if (form.id === 'statusForm') {
+  if (form.getAttribute('id') === 'statusForm') {
     state.settings.statuses.push({ id: uid(), nome: String(fd.get('nome') || '').trim(), cor: String(fd.get('cor') || '#2e604a') });
     form.reset();
     persist('Status adicionado');
   }
-  if (form.id === 'categoryForm') {
+  if (form.getAttribute('id') === 'categoryForm') {
     state.referenceCategories.push({ id: uid(), nome: String(fd.get('nome') || '').trim(), cor: String(fd.get('cor') || '#4f7dbd') });
     form.reset();
     persist('Categoria adicionada');
   }
-  if (form.id === 'tagForm') {
+  if (form.getAttribute('id') === 'tagForm') {
     state.referenceTags.push({ id: uid(), nome: String(fd.get('nome') || '').trim(), cor: String(fd.get('cor') || '#b9822f') });
     form.reset();
     persist('Tag adicionada');
@@ -1796,6 +1741,8 @@ document.addEventListener('click', event => {
   if (detailReference && !event.target.closest('[data-edit-reference],[data-copy-abnt],[data-reference-select],.reference-select-wrap')) return referenceDetail(byId(state.references, detailReference));
   const editReference = event.target.closest('[data-edit-reference]')?.dataset.editReference;
   if (editReference) return referenceForm(byId(state.references, editReference));
+  const viewReference = event.target.closest('[data-view-reference]')?.dataset.viewReference;
+  if (viewReference) return referenceDetail(byId(state.references, viewReference));
   const copyAbnt = event.target.closest('[data-copy-abnt]')?.dataset.copyAbnt;
   if (copyAbnt) {
     const text = formatAbnt(byId(state.references, copyAbnt));
@@ -1805,7 +1752,7 @@ document.addEventListener('click', event => {
   const addQuote = event.target.closest('[data-add-quote]')?.dataset.addQuote;
   if (addQuote) return citationForm(addQuote);
   const deleteReference = event.target.closest('[data-delete-reference]')?.dataset.deleteReference;
-  if (deleteReference && confirm('Excluir esta referência?')) {
+  if (deleteReference && confirm(state.dissertations.some(doc => doc.citations.some(c => c.referenceId === deleteReference)) ? 'Esta referência possui citações. Excluir da biblioteca? As citações ficarão sinalizadas no texto.' : 'Excluir esta referência?')) {
     state.references = state.references.filter(ref => ref.id !== deleteReference);
     selectedReferenceIds.delete(deleteReference);
     state.dissertations.forEach(document => document.citations = (document.citations || []).filter(citation => citation.referenceId !== deleteReference));
@@ -1858,6 +1805,7 @@ document.addEventListener('click', event => {
   }
   const openDocument = event.target.closest('[data-open-document]')?.dataset.openDocument;
   if (openDocument) {
+    window.DissertationEditor.flush();
     state.activeDissertationId = openDocument;
     state.dissertation = activeDissertation();
     Store.save();
@@ -1931,31 +1879,7 @@ document.addEventListener('click', event => {
     state.references.forEach(reference => reference.tagIds = (reference.tagIds || []).filter(id => id !== deleteTag));
     return persist('Tag excluída');
   }
-  const addBlock = event.target.closest('[data-add-block]')?.dataset.addBlock;
-  if (addBlock) {
-    insertHtmlIntoEditor(editorSnippet(addBlock));
-    return toast('Trecho inserido');
-  }
-  const editorCommand = event.target.closest('[data-editor-command]')?.dataset.editorCommand;
-  if (editorCommand) {
-    const html = window.DissertationEditor?.execCommand(editorCommand);
-    if (html) {
-      const dissertation = activeDissertation();
-      dissertation.contentHtml = html;
-      dissertation.atualizadoEm = now();
-      renderDocumentOutline();
-    }
-    Store.save();
-    focusEditor();
-    return;
-  }
-  const jumpHeading = event.target.closest('[data-jump-heading]')?.dataset.jumpHeading;
-  if (jumpHeading) {
-    const nodes = [...document.querySelectorAll('.doc-page-body p, .doc-page-body div, .doc-page-body h1, .doc-page-body h2, .doc-page-body h3, .doc-page-body h4, .doc-page-body li')];
-    const headingNodes = nodes.filter(node => /^\d+(?:\.\d+)*\s+.+/.test((node.textContent || '').trim()));
-    headingNodes[Number(jumpHeading)]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
+
 });
 
 document.addEventListener('input', event => {
@@ -1988,12 +1912,6 @@ document.addEventListener('change', event => {
     const item = byId(collection, id);
     if (item) item[settingName ? 'nome' : 'cor'] = event.target.value.trim();
     return persist('Personalização salva');
-  }
-  if (event.target.id === 'documentFontSize') {
-    state.settings.documentFontSize = String(event.target.value || '12');
-    Store.save();
-    renderDissertation();
-    return;
   }
 });
 
@@ -2045,17 +1963,27 @@ $('#referenceSidebarToggle').onclick = () => { state.settings.referenceSidebarCo
 $('#addIdeaBtn').onclick = () => ideaForm();
 $('#addTaskListBtn').onclick = () => taskListForm();
 $('#addGlossaryBtn').onclick = () => glossaryForm();
-$('#insertCitationBtn').onclick = () => { storeEditorSelection(); insertCitationModal(); };
+function newDocumentForm() {
+  openModal(`<form class="form-modal" id="newDocumentForm"><p class="eyebrow">DOCUMENTO</p><h2 id="modalTitle">Novo documento</h2><label>Nome do documento<input name="nome" required value="Novo documento" autofocus></label><div class="form-actions"><button type="button" class="btn btn-secondary" data-close>Cancelar</button><button class="btn btn-primary">Criar documento</button></div></form>`, 'new-document');
+}
 $('#addDocumentBtn').onclick = () => {
-  const name = prompt('Nome do novo documento:', 'Novo documento');
+  window.DissertationEditor.flush();
+  newDocumentForm();
+};
+document.addEventListener('submit', event => {
+  if (event.target.id !== 'newDocumentForm') return;
+  event.preventDefault();
+  const name = new FormData(event.target).get('nome')?.trim();
   if (!name) return;
   const document = defaultDissertation();
-  document.nome = name.trim();
+  document.nome = name;
   state.dissertations.push(document);
   state.activeDissertationId = document.id;
+  closeModal();
   persist('Documento criado');
-};
+});
 $('#duplicateDocumentBtn').onclick = () => {
+  window.DissertationEditor.flush();
   const current = activeDissertation();
   const name = prompt('Nome da cópia:', `${current.nome || current.meta.titulo || 'Documento'} - cópia`);
   if (!name) return;
@@ -2079,6 +2007,51 @@ $('#deleteDocumentBtn').onclick = () => {
 };
 $('#modalClose').onclick = closeModal;
 $('#modalBackdrop').onclick = event => { if (event.target === event.currentTarget) closeModal(); };
+let academicWholeSelection = false;
+const keepBibliographySelectable = () => document.querySelectorAll('.academic-bibliography').forEach(block => {
+  block.contentEditable = 'true';
+  block.dataset.automaticBibliography = 'true';
+});
+keepBibliographySelectable();
+new MutationObserver(keepBibliographySelectable).observe(document.body, { childList: true, subtree: true });
+
+document.addEventListener('beforeinput', event => {
+  if (event.target.closest?.('[data-automatic-bibliography]')) event.preventDefault();
+}, true);
+
+document.addEventListener('keydown', event => {
+  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'a') return;
+  const editorRoot = event.target.closest?.('.academic-prose');
+  if (!editorRoot) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  academicWholeSelection = true;
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(editorRoot);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}, true);
+
+document.addEventListener('copy', event => {
+  if (!academicWholeSelection) return;
+  const editorRoot = document.querySelector('.academic-prose');
+  if (!editorRoot || !event.clipboardData) return;
+  const copyRoot = editorRoot.cloneNode(true);
+  copyRoot.querySelectorAll('.academic-citation').forEach(node => {
+    node.style.removeProperty('color');
+    node.classList.remove('academic-citation');
+  });
+  event.clipboardData.setData('text/plain', editorRoot.innerText || editorRoot.textContent || '');
+  event.clipboardData.setData('text/html', copyRoot.innerHTML);
+  event.preventDefault();
+  academicWholeSelection = false;
+}, true);
+
+document.addEventListener('mousedown', event => {
+  if (!event.target.closest?.('.academic-prose')) academicWholeSelection = false;
+}, true);
+
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
 $('#themeToggle').onclick = () => { state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark'; persist('Tema atualizado'); };
 $$('.segmented [data-theme]').forEach(button => button.onclick = () => { state.settings.theme = button.dataset.theme; persist('Tema atualizado'); });
@@ -2189,9 +2162,12 @@ FirebaseBackend.auth.onAuthStateChanged(async user => {
   $('#appShell').classList.remove('hidden');
   try {
     const cloudState = await FirebaseBackend.loadState(user.uid);
-    if (Store.valid(cloudState)) {
+    if (cloudState && typeof cloudState === 'object') {
+      const localState = localStorage.getItem(Store.key);
+      if (localState) localStorage.setItem(PRE_SYNC_BACKUP_KEY, localState);
       state = normalizeStateData(cloudState);
       localStorage.setItem(Store.key, JSON.stringify(state));
+      await FirebaseBackend.saveState(user.uid, state);
     } else {
       await FirebaseBackend.saveState(user.uid, state);
     }

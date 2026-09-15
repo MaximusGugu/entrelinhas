@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260911-dissertar-base">
   <link rel="stylesheet" href="dashboard.css?v=20260911-abnt-editor">
+  <link rel="stylesheet" href="academic-editor/editor.css?v=20260915-italic-v1">
 </head>
 <body>
   <section class="auth-screen" id="authScreen">
@@ -116,48 +117,12 @@
             <nav class="document-outline" id="documentOutline" aria-label="Estrutura da dissertação"></nav>
           </aside>
           <div class="word-workspace">
-            <div class="word-ribbon panel" role="toolbar" aria-label="Ferramentas do editor">
-              <div class="ribbon-group">
-                <span>Texto</span>
-                <button class="tool-btn" type="button" data-editor-command="bold" title="Negrito"><strong>B</strong></button>
-                <button class="tool-btn" type="button" data-editor-command="italic" title="Itálico"><em>I</em></button>
-                <button class="tool-btn" type="button" data-editor-command="underline" title="Sublinhado"><u>U</u></button>
-                <label class="font-size-control" title="Tamanho da fonte">
-                  <span>Fonte</span>
-                  <select id="documentFontSize" aria-label="Tamanho da fonte">
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="13">13</option>
-                    <option value="14">14</option>
-                    <option value="16">16</option>
-                  </select>
-                </label>
-              </div>
-              <div class="ribbon-group">
-                <span>Alinhamento</span>
-                <button class="tool-btn" type="button" data-editor-command="justifyLeft" title="Alinhar à esquerda">≡</button>
-                <button class="tool-btn" type="button" data-editor-command="justifyCenter" title="Centralizar">≣</button>
-                <button class="tool-btn" type="button" data-editor-command="justifyFull" title="Justificar">☷</button>
-              </div>
-              <div class="ribbon-group">
-                <span>Inserir</span>
-                <button class="tool-btn text-tool" type="button" data-add-block="heading1">Título 1</button>
-                <button class="tool-btn text-tool" type="button" data-add-block="heading2">Título 2</button>
-                <button class="tool-btn text-tool" type="button" data-add-block="heading3">Título 3</button>
-                <button class="tool-btn text-tool" type="button" data-add-block="paragraph">Parágrafo</button>
-                <button class="tool-btn text-tool" type="button" data-add-block="quote">Citação longa</button>
-                <button class="tool-btn text-tool" type="button" data-add-block="schedule">Tabela</button>
-              </div>
-              <div class="ribbon-group ribbon-actions">
-                <span>Referências</span>
-                <button class="btn btn-primary" type="button" id="insertCitationBtn">Adicionar referência</button>
-              </div>
-            </div>
-            <div class="word-ruler" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <header class="academic-document-header"><input id="academicDocumentTitle" aria-label="Nome do documento" value="Documento sem título"><span id="academicSaveState" role="status">Salvo</span></header>
+            <div id="academicToolbar"></div>
             <div class="word-page-wrap">
               <div class="document-pages" id="documentPage"></div>
             </div>
+            <footer class="academic-status"><span id="academicStats">Página 1 de 1 | 0 palavras</span></footer>
           </div>
         </div>
       </section>
@@ -186,7 +151,7 @@
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="dissertation-editor.js?v=20260912-editor-focus-fix"></script>
-  <script src="app.js?v=20260912-reference-schema"></script>
+  <script src="dissertation-editor.js?v=20260915-select-all-v1"></script>
+  <script src="app.js?v=20260915-select-all-global-v2"></script>
 </body>
 </html>
