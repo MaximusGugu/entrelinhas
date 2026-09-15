@@ -368,12 +368,29 @@ function normalizeStateData(data) {
   });
   migrated.ideas.forEach((idea, index) => {
     idea.id = idea.id || uid();
-    idea.cor = idea.cor || PALETTE[index % PALETTE.length];
+    idea.type = idea.type || 'postit';
+    idea.content = idea.content ?? [idea.titulo, idea.texto].filter(Boolean).join('\n');
+    idea.textType = idea.textType || 'body';
+    idea.fontSize = ['small', 'medium', 'large'].includes(idea.fontSize) ? idea.fontSize : 'medium';
+    idea.textAlign = ['left', 'center', 'right'].includes(idea.textAlign) ? idea.textAlign : 'left';
+    idea.color = idea.color || idea.cor || PALETTE[index % PALETTE.length];
+    idea.cor = idea.color;
     idea.x = Number.isFinite(Number(idea.x)) ? Number(idea.x) : 60 + index * 40;
     idea.y = Number.isFinite(Number(idea.y)) ? Number(idea.y) : 80 + index * 35;
+    idea.width = Math.max(150, Number(idea.width) || 220);
+    idea.height = Math.max(idea.type === 'postit' ? 120 : 56, Number(idea.height) || (idea.type === 'postit' ? 160 : 72));
     idea.criadoEm = idea.criadoEm || now();
     idea.atualizadoEm = idea.atualizadoEm || idea.criadoEm;
   });
+  migrated.ideaLinks = migrated.ideaLinks.map(link => ({
+    id: link.id || uid(),
+    sourceElementId: link.sourceElementId || link.from,
+    sourceHandle: link.sourceHandle || 'right',
+    targetElementId: link.targetElementId || link.to,
+    targetHandle: link.targetHandle || 'left',
+    label: String(link.label || ''),
+    labelEnabled: Boolean(link.labelEnabled || link.label)
+  })).filter(link => link.sourceElementId && link.targetElementId);
   migrated.taskLists.forEach(list => {
     list.id = list.id || uid();
     list.items = Array.isArray(list.items) ? list.items : [];
@@ -1142,16 +1159,15 @@ function renderDashboard() {
 
 function renderIdeas() {
   const board = $('#ideaBoard');
-  const links = state.ideaLinks.map(link => {
-    const from = byId(state.ideas, link.from), to = byId(state.ideas, link.to);
-    if (!from || !to) return '';
-    const x1 = from.x + 95, y1 = from.y + 55, x2 = to.x + 95, y2 = to.y + 55;
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
-  }).join('');
-  board.innerHTML = `<svg class="idea-links">${links}</svg>` + state.ideas.map(idea => `<article class="idea-note" data-idea="${idea.id}" style="left:${idea.x}px;top:${idea.y}px;--note:${esc(idea.cor)}">
-    <button class="note-edit" data-edit-idea="${idea.id}" title="Editar ideia">✎</button>
-    <h3>${esc(idea.titulo || 'Ideia')}</h3><p>${esc(idea.texto || '')}</p>
-  </article>`).join('');
+  if (!board || !window.IdeasCanvas) return;
+  window.IdeasCanvas.render({
+    container: board,
+    elements: state.ideas,
+    connections: state.ideaLinks,
+    onChange() {
+      Store.save();
+    }
+  });
 }
 
 function renderTasks() {
@@ -1733,7 +1749,10 @@ document.addEventListener('click', event => {
     if (dashboardAction === 'open-glossary') location.hash = '#glossario';
     if (dashboardAction === 'new-reference') referenceForm();
     if (dashboardAction === 'new-task') taskListForm();
-    if (dashboardAction === 'new-idea') ideaForm();
+    if (dashboardAction === 'new-idea') {
+      location.hash = '#ideias';
+      setTimeout(() => window.IdeasCanvas?.create('postit'), 0);
+    }
     if (dashboardAction === 'new-document') $('#addDocumentBtn')?.click();
     return;
   }
@@ -1960,7 +1979,6 @@ $('#addReferenceBtn').onclick = () => referenceForm();
 $('#clearReferenceFilters').onclick = () => { ['referenceSearch', 'referenceType', 'referenceCategory', 'referenceStatus', 'referenceTag'].forEach(id => $('#' + id).value = ''); $('#referenceSort').value = 'updated'; renderReferences(); };
 $('#referenceFilterToggle').onclick = () => $('#referenceFilters').classList.toggle('open');
 $('#referenceSidebarToggle').onclick = () => { state.settings.referenceSidebarCollapsed = !state.settings.referenceSidebarCollapsed; Store.save(); renderReferences(); };
-$('#addIdeaBtn').onclick = () => ideaForm();
 $('#addTaskListBtn').onclick = () => taskListForm();
 $('#addGlossaryBtn').onclick = () => glossaryForm();
 function newDocumentForm() {

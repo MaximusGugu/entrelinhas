@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="styles.css?v=20260911-dissertar-base">
   <link rel="stylesheet" href="dashboard.css?v=20260911-abnt-editor">
   <link rel="stylesheet" href="academic-editor/editor.css?v=20260915-italic-v1">
+  <link rel="stylesheet" href="ideas-canvas.css?v=20260915-ideas-canvas-v14">
 </head>
 <body>
   <section class="auth-screen" id="authScreen">
@@ -92,8 +93,7 @@
       </section>
 
       <section class="page hidden" id="ideiasPage">
-        <div class="page-heading"><div><p class="eyebrow">MAPA MENTAL</p><h1>Ideias</h1><p>Post-its para hipóteses, relações, dúvidas e caminhos de escrita.</p></div><button class="btn btn-primary" id="addIdeaBtn">＋ Nova ideia</button></div>
-        <div class="idea-board" id="ideaBoard"></div>
+        <div class="ideas-canvas-host" id="ideaBoard"></div>
       </section>
 
       <section class="page hidden" id="tarefasPage">
@@ -152,6 +152,7 @@
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="dissertation-editor.js?v=20260915-select-all-v1"></script>
-  <script src="app.js?v=20260915-select-all-global-v2"></script>
+  <script src="ideas-canvas.js?v=20260915-ideas-canvas-v14"></script>
+  <script src="app.js?v=20260915-ideas-canvas-v14"></script>
 </body>
 </html>
