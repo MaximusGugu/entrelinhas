@@ -1,32 +1,28 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#8fc1a4">
+  <meta name="theme-color" content="#2e604a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-touch-fullscreen" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Entrelinhas">
+  <meta name="apple-mobile-web-app-title" content="Dissertar">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="application-name" content="Entrelinhas">
-  <meta name="description" content="Biblioteca pessoal para catalogar suas leituras.">
-  <title>Entrelinhas — Catálogo de leitura</title>
+  <meta name="application-name" content="Dissertar">
+  <meta name="description" content="Ambiente pessoal para organizar referências, ideias, tarefas e escrever sua dissertação.">
+  <title>Dissertar — Projeto de dissertação</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260710-reading-cover">
-  <link rel="stylesheet" href="dashboard.css?v=20260710-compact-collapsed-switcher">
+  <link rel="stylesheet" href="styles.css?v=20260911-dissertar-base">
+  <link rel="stylesheet" href="dashboard.css?v=20260911-abnt-editor">
 </head>
 <body>
-  <section class="public-screen hidden" id="publicScreen">
-    <header class="public-header"><a class="brand" href="#" aria-label="Entrelinhas"><span class="brand-mark">E</span><span><strong>Entrelinhas</strong><small>ESTANTE COMPARTILHADA</small></span></a></header>
-    <main class="public-main" id="publicContent"></main>
-  </section>
   <section class="auth-screen" id="authScreen">
     <div class="auth-card panel">
-      <div class="auth-brand"><span class="brand-mark">E</span><div><strong>Entrelinhas</strong><small>MINHA BIBLIOTECA</small></div></div>
-      <div><p class="eyebrow">BEM-VINDO</p><h1 id="authTitle">Entre na sua biblioteca</h1><p id="authSubtitle">Suas leituras sincronizadas e disponíveis em qualquer dispositivo.</p></div>
+      <div class="auth-brand"><span class="brand-mark">D</span><div><strong>Dissertar</strong><small>PROJETO DE MESTRADO</small></div></div>
+      <div><p class="eyebrow">BEM-VINDO</p><h1 id="authTitle">Entre no seu projeto</h1><p id="authSubtitle">Referências, ideias, tarefas e texto da dissertação sincronizados em um só lugar.</p></div>
       <form id="authForm" class="auth-form">
         <label>E-mail<input id="authEmail" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
         <label>Senha<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></label>
@@ -36,75 +32,150 @@
       <button type="button" class="text-btn auth-switch" id="authSwitch">Ainda não tenho conta — cadastrar</button>
     </div>
   </section>
+
   <div class="app-shell hidden" id="appShell">
     <header class="topbar">
-      <a class="brand" href="#colecoes" aria-label="Entrelinhas, Minha estante"><span class="brand-mark">E</span><span><strong>Entrelinhas</strong><small>minha biblioteca</small></span></a>
+      <a class="brand" href="#dashboard" aria-label="Dissertar"><span class="brand-mark">D</span><span><strong>Dissertar</strong><small>minha dissertação</small></span></a>
       <button class="mobile-menu icon-btn" id="mobileMenu" aria-label="Abrir menu" aria-expanded="false">☰</button>
       <nav class="main-nav" id="mainNav" aria-label="Menu principal">
-        <a href="#colecoes" data-page="colecoes">Minha estante</a>
-        <a href="#categorias" data-page="categorias">Categorias e tags</a>
+        <a href="#dashboard" data-page="dashboard">Dashboard</a>
+        <a href="#referencias" data-page="referencias">Referências</a>
+        <a href="#ideias" data-page="ideias">Ideias</a>
+        <a href="#tarefas" data-page="tarefas">Tarefas</a>
+        <a href="#glossario" data-page="glossario">Glossário</a>
+        <a href="#dissertacao" data-page="dissertacao">Dissertação</a>
         <a href="#configuracoes" data-page="configuracoes">Configurações</a>
       </nav>
       <div class="top-actions">
         <span class="user-email" id="userEmail"></span>
         <button class="icon-btn" id="themeToggle" aria-label="Alternar tema">☾</button>
         <button class="icon-btn" id="logoutBtn" aria-label="Sair da conta" title="Sair">↪</button>
-        <button class="btn btn-primary" id="addWorkBtn"><span>＋</span> Adicionar obra</button>
+        <button class="btn btn-primary" id="addReferenceBtn"><span>＋</span> Nova referência</button>
       </div>
     </header>
 
     <main>
       <section class="page" id="dashboardPage">
-        <div class="dashboard-mobile-tools"><button class="btn btn-secondary filter-toggle" id="filterToggle">☷ Filtros</button></div>
-        <div class="dashboard-layout">
-          <aside class="filters panel" id="filtersPanel">
-            <div class="panel-title"><h2>Filtrar catálogo</h2><button type="button" class="text-btn" id="clearFilters">Limpar</button></div>
-            <label>Buscar por título<input id="filterSearch" type="search" placeholder="Ex.: Solo Leveling"></label>
-            <label>Categoria<select id="filterCategory"></select></label>
-            <label>Status<select id="filterStatus"></select></label>
-            <label>Nota mínima<select id="filterRating"><option value="">Qualquer nota</option><option value="5">5 estrelas</option><option value="4">4 estrelas ou mais</option><option value="3">3 estrelas ou mais</option><option value="2">2 estrelas ou mais</option><option value="1">1 estrela ou mais</option></select></label>
-            <label>Tag<select id="filterTag"></select></label>
-            <label>Coleção<select id="filterCollection"></select></label>
-            <label>Ordenar por<select id="filterSort"><option value="recent">Adicionados recentemente</option><option value="updated">Atualizados recentemente</option><option value="az">Título de A a Z</option><option value="za">Título de Z a A</option><option value="rating">Maior nota</option><option value="progressDesc">Maior progresso</option><option value="progressAsc">Menor progresso</option></select></label>
-          </aside>
-          <div class="catalog-area"><div class="results-bar"><strong id="resultCount"></strong><div class="view-label">▦ Visualização em grade</div></div><div class="book-grid" id="bookGrid"></div><div class="empty-state hidden" id="emptyState"><div>⌕</div><h2>Nenhuma obra encontrada</h2><p>Tente ajustar os filtros para ver mais resultados.</p><button class="btn btn-secondary" id="emptyClear">Limpar filtros</button></div></div>
+        <div class="page-heading">
+          <div><p class="eyebrow">PAINEL DE TRABALHO</p><h1>Dashboard</h1><p>Uma visão única para escrever, fichar fontes e acompanhar as próximas entregas.</p></div>
+        </div>
+        <div class="dashboard-workbench">
+          <section class="panel dashboard-hero" id="dashboardFocus"></section>
+          <section class="panel dashboard-actions" id="dashboardQuickActions"></section>
+          <section class="panel dashboard-panel" id="dashboardWorkQueue"></section>
+          <section class="panel dashboard-panel" id="dashboardProgress"></section>
+          <section class="panel dashboard-panel" id="dashboardSources"></section>
+          <section class="panel dashboard-panel" id="dashboardNotes"></section>
         </div>
       </section>
 
-      <section class="page hidden" id="colecoesPage">
-        <div class="collections-mobile-tools"><button class="btn btn-secondary" id="collectionFilterToggle">☷ Filtros</button></div>
-        <div class="collections-layout">
-          <aside class="collection-filters panel" id="collectionFilters">
-            <div class="panel-title collection-filter-title"><h2>Filtros</h2><div class="filter-title-actions"><button type="button" class="sidebar-icon-btn" id="shelfSidebarToggle" aria-label="Colapsar filtros" aria-pressed="false" title="Colapsar filtros"><span aria-hidden="true"></span></button><button type="button" class="text-btn" id="clearShelfFilters">Limpar</button></div></div>
-            <input id="shelfCollection" type="hidden" value="all">
-            <fieldset class="view-selector"><legend>Visualização</legend><div class="view-options"><button type="button" data-shelf-view="table" aria-label="Visualização em tabela" title="Tabela">▦<span>Tabela</span></button><button type="button" data-shelf-view="list" aria-label="Visualização em lista" title="Lista">☷<span>Lista</span></button><button type="button" data-shelf-view="kanban" aria-label="Visualização Kanban" title="Kanban">▥<span>Kanban</span></button></div></fieldset>
-            <label>Buscar por título<input id="shelfSearch" type="search" placeholder="Buscar nesta coleção"></label>
-            <label>Categoria<select id="shelfCategory"></select></label>
-            <label>Status<select id="shelfStatus"></select></label>
-            <label>Nota mínima<select id="shelfRating"><option value="">Qualquer nota</option><option value="5">5 estrelas</option><option value="4">4 estrelas ou mais</option><option value="3">3 estrelas ou mais</option><option value="2">2 estrelas ou mais</option><option value="1">1 estrela ou mais</option></select></label>
-            <label>Tag<select id="shelfTag"></select></label>
-            <label>Ordenar<select id="shelfSort"><option value="az">Título de A a Z</option><option value="za">Título de Z a A</option><option value="recent">Adicionados recentemente</option><option value="updated">Atualizados recentemente</option><option value="rating">Maior nota</option><option value="progressDesc">Maior progresso</option><option value="progressAsc">Menor progresso</option></select></label>
-            <button class="hidden" id="manageCollectionsBtn" aria-hidden="true" tabindex="-1"></button>
+      <section class="page hidden" id="referenciasPage">
+        <div class="collections-mobile-tools"><button class="btn btn-secondary" id="referenceFilterToggle">☷ Filtros</button></div>
+        <div class="reference-layout">
+          <aside class="reference-filters panel" id="referenceFilters">
+            <div class="panel-title reference-filter-title"><h2>Filtros</h2><div class="filter-title-actions"><button type="button" class="sidebar-icon-btn" id="referenceSidebarToggle" aria-label="Colapsar filtros" aria-pressed="false" title="Colapsar filtros"><span aria-hidden="true"></span></button><button type="button" class="text-btn" id="clearReferenceFilters">Limpar</button></div></div>
+            <fieldset class="view-selector"><legend>Visualização</legend><div class="view-options"><button type="button" data-reference-view="grid" aria-label="Visualização em grade" title="Grade">▦<span>Grade</span></button><button type="button" data-reference-view="list" aria-label="Visualização em lista" title="Lista">☷<span>Lista</span></button><button type="button" data-reference-view="kanban" aria-label="Visualização Kanban" title="Kanban">▥<span>Kanban</span></button></div></fieldset>
+            <label>Buscar<input id="referenceSearch" type="search" placeholder="Título, autor, resumo"></label>
+            <label>Tipo<select id="referenceType"></select></label>
+            <label>Categoria<select id="referenceCategory"></select></label>
+            <label>Status<select id="referenceStatus"></select></label>
+            <label>Tag<select id="referenceTag"></select></label>
+            <label>Ordenar<select id="referenceSort"><option value="updated">Atualizadas recentemente</option><option value="recent">Adicionadas recentemente</option><option value="az">Título de A a Z</option><option value="yearDesc">Ano mais recente</option><option value="yearAsc">Ano mais antigo</option></select></label>
           </aside>
-          <div class="collection-catalog-area">
-            <div class="collection-tabs" id="collectionTabs" role="tablist" aria-label="Coleções"></div>
-            <div class="kanban-group-tabs hidden" id="kanbanGroupTabs" role="tablist" aria-label="Agrupar colunas do Kanban"></div>
-            <div class="shelf-summary" id="shelfSummary"></div>
-            <div class="shelf-grid" id="shelfGrid"></div>
+          <div class="reference-area">
+            <div class="reference-toolbar"><div class="reference-summary" id="referenceSummary"></div><div class="reference-tools"><button type="button" class="small-btn" id="importSingleReferenceBtn">Importar individual</button><button type="button" class="small-btn" id="exportReferencesBtn">Exportar JSON</button><label class="small-btn file-btn">Importar JSON<input type="file" id="importReferencesInput" accept="application/json,.json"></label><button type="button" class="small-btn" id="downloadReferenceTemplateBtn">Modelo JSON</button></div><div class="kanban-group-tabs hidden" id="referenceKanbanGroups" aria-label="Agrupar referências"><button type="button" data-kanban-group="status">Status</button><button type="button" data-kanban-group="type">Tipo</button><button type="button" data-kanban-group="category">Categoria</button></div></div>
+            <div class="reference-bulk-bar hidden" id="referenceBulkBar"></div>
+            <div class="reference-grid" id="referenceGrid"></div>
           </div>
         </div>
-        <div class="hidden" id="collectionManage"></div>
-        <button class="hidden" id="newCollectionBtn" aria-hidden="true"></button>
       </section>
 
-      <section class="page hidden" id="categoriasPage">
-        <div class="page-heading"><div><p class="eyebrow">ORGANIZAÇÃO</p><h1>Categorias e tags</h1><p>Personalize a forma como sua biblioteca é organizada.</p></div></div>
-        <div class="two-columns"><div class="panel manage-panel"><div class="panel-title"><div><h2>Categorias</h2><p>Uma categoria principal por obra.</p></div></div><form class="inline-form taxonomy-form" id="categoryForm"><label class="sr-only" for="categoryName">Nova categoria</label><input id="categoryName" required placeholder="Nova categoria"><input type="color" id="categoryColor" value="#4f9a73" aria-label="Cor da categoria"><button class="btn btn-primary">Adicionar</button></form><div id="categoryList" class="item-list"></div></div><div class="panel manage-panel"><div class="panel-title"><div><h2>Tags</h2><p>Use quantas quiser em cada obra.</p></div></div><form class="inline-form taxonomy-form" id="tagForm"><label class="sr-only" for="tagName">Nova tag</label><input id="tagName" required placeholder="Nova tag"><input type="color" id="tagColor" value="#4f7dbd" aria-label="Cor da tag"><button class="btn btn-primary">Adicionar</button></form><div id="tagList" class="item-list"></div></div></div><div class="panel manage-panel status-manager"><div class="panel-title"><div><h2>Status</h2><p>Personalize nomes e cores dos status usados na biblioteca.</p></div></div><form class="inline-form taxonomy-form" id="statusForm"><label class="sr-only" for="statusName">Novo status</label><input id="statusName" required placeholder="Novo status"><input type="color" id="statusColor" value="#8d67b5" aria-label="Cor do status"><button class="btn btn-primary">Adicionar</button></form><div id="statusList" class="item-list"></div></div>
+      <section class="page hidden" id="ideiasPage">
+        <div class="page-heading"><div><p class="eyebrow">MAPA MENTAL</p><h1>Ideias</h1><p>Post-its para hipóteses, relações, dúvidas e caminhos de escrita.</p></div><button class="btn btn-primary" id="addIdeaBtn">＋ Nova ideia</button></div>
+        <div class="idea-board" id="ideaBoard"></div>
+      </section>
+
+      <section class="page hidden" id="tarefasPage">
+        <div class="page-heading"><div><p class="eyebrow">EXECUÇÃO</p><h1>Tarefas</h1><p>Checklists com prazos para organizar leitura, escrita, qualificação e defesa.</p></div><button class="btn btn-primary" id="addTaskListBtn">＋ Nova checklist</button></div>
+        <div class="task-board" id="taskBoard"></div>
+      </section>
+
+      <section class="page hidden" id="glossarioPage">
+        <div class="page-heading"><div><p class="eyebrow">CONCEITOS</p><h1>Glossário</h1><p>Termos, siglas e significados que precisam aparecer de forma consistente.</p></div><button class="btn btn-primary" id="addGlossaryBtn">＋ Novo termo</button></div>
+        <div class="glossary-tools"><input id="glossarySearch" type="search" placeholder="Buscar termo ou sigla"></div>
+        <div class="glossary-list" id="glossaryList"></div>
+      </section>
+
+      <section class="page hidden" id="dissertacaoPage">
+        <div class="word-shell">
+          <aside class="word-sidebar panel">
+            <div class="panel-title"><div><h2>Documentos</h2><p>Crie e alterne versões do texto.</p></div><button class="small-btn" type="button" id="addDocumentBtn">Novo</button></div>
+            <div class="document-list" id="documentList" aria-label="Documentos cadastrados"></div>
+            <div class="document-actions"><button class="small-btn" type="button" id="duplicateDocumentBtn">Duplicar</button><button class="small-btn danger" type="button" id="deleteDocumentBtn">Excluir</button></div>
+            <div class="panel-title structure-title"><div><h2>Estrutura</h2><p>Navegue pelas seções numeradas.</p></div></div>
+            <nav class="document-outline" id="documentOutline" aria-label="Estrutura da dissertação"></nav>
+          </aside>
+          <div class="word-workspace">
+            <div class="word-ribbon panel" role="toolbar" aria-label="Ferramentas do editor">
+              <div class="ribbon-group">
+                <span>Texto</span>
+                <button class="tool-btn" type="button" data-editor-command="bold" title="Negrito"><strong>B</strong></button>
+                <button class="tool-btn" type="button" data-editor-command="italic" title="Itálico"><em>I</em></button>
+                <button class="tool-btn" type="button" data-editor-command="underline" title="Sublinhado"><u>U</u></button>
+                <label class="font-size-control" title="Tamanho da fonte">
+                  <span>Fonte</span>
+                  <select id="documentFontSize" aria-label="Tamanho da fonte">
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                  </select>
+                </label>
+              </div>
+              <div class="ribbon-group">
+                <span>Alinhamento</span>
+                <button class="tool-btn" type="button" data-editor-command="justifyLeft" title="Alinhar à esquerda">≡</button>
+                <button class="tool-btn" type="button" data-editor-command="justifyCenter" title="Centralizar">≣</button>
+                <button class="tool-btn" type="button" data-editor-command="justifyFull" title="Justificar">☷</button>
+              </div>
+              <div class="ribbon-group">
+                <span>Inserir</span>
+                <button class="tool-btn text-tool" type="button" data-add-block="heading1">Título 1</button>
+                <button class="tool-btn text-tool" type="button" data-add-block="heading2">Título 2</button>
+                <button class="tool-btn text-tool" type="button" data-add-block="heading3">Título 3</button>
+                <button class="tool-btn text-tool" type="button" data-add-block="paragraph">Parágrafo</button>
+                <button class="tool-btn text-tool" type="button" data-add-block="quote">Citação longa</button>
+                <button class="tool-btn text-tool" type="button" data-add-block="schedule">Tabela</button>
+              </div>
+              <div class="ribbon-group ribbon-actions">
+                <span>Referências</span>
+                <button class="btn btn-primary" type="button" id="insertCitationBtn">Adicionar referência</button>
+              </div>
+            </div>
+            <div class="word-ruler" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="word-page-wrap">
+              <div class="document-pages" id="documentPage"></div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="page hidden" id="configuracoesPage">
-        <div class="page-heading"><div><p class="eyebrow">PREFERÊNCIAS</p><h1>Configurações</h1><p>Personalize a aparência e proteja os dados da sua biblioteca.</p></div></div>
-        <div class="settings-grid"><div class="panel setting-card"><span class="setting-icon">☺</span><div><h2>Nome público</h2><p>Este nome aparecerá nas coleções que você compartilhar.</p><form class="setting-name-form" id="displayNameForm"><label class="sr-only" for="displayNameInput">Nome público</label><input id="displayNameInput" maxlength="60" required placeholder="Como você quer ser chamado"><button class="btn btn-primary">Salvar nome</button></form></div></div><div class="panel setting-card"><span class="setting-icon">◐</span><div><h2>Aparência</h2><p>Escolha o tema mais confortável para leitura.</p><div class="segmented"><button type="button" data-theme="light">Claro</button><button type="button" data-theme="dark">Escuro</button></div></div></div><div class="panel setting-card"><span class="setting-icon">⇩</span><div><h2>Exportar dados</h2><p>Baixe uma cópia completa da sua biblioteca em JSON.</p><button class="btn btn-secondary" id="exportBtn">Exportar biblioteca</button></div></div><div class="panel setting-card"><span class="setting-icon">⇧</span><div><h2>Importar dados</h2><p>Restaure um arquivo JSON válido. Os dados atuais serão substituídos.</p><label class="btn btn-secondary file-btn">Escolher arquivo<input type="file" id="importInput" accept="application/json,.json"></label></div></div><div class="panel setting-card danger-card"><span class="setting-icon">↺</span><div><h2>Restaurar demonstração</h2><p>Apaga alterações e recupera os dados fictícios iniciais.</p><button class="btn btn-danger-outline" id="resetBtn">Restaurar dados</button></div></div></div>
+        <div class="page-heading"><div><p class="eyebrow">PREFERÊNCIAS</p><h1>Configurações</h1><p>Personalize a aparência e proteja os dados do projeto.</p></div></div>
+        <div class="settings-grid">
+          <div class="panel setting-card"><span class="setting-icon">☺</span><div><h2>Nome público</h2><p>Identificação usada na sincronização.</p><form class="setting-name-form" id="displayNameForm"><label class="sr-only" for="displayNameInput">Nome público</label><input id="displayNameInput" maxlength="60" required placeholder="Como você quer ser chamado"><button class="btn btn-primary">Salvar nome</button></form></div></div>
+          <div class="panel setting-card"><span class="setting-icon">◐</span><div><h2>Aparência</h2><p>Escolha o tema mais confortável para escrita.</p><div class="segmented"><button type="button" data-theme="light">Claro</button><button type="button" data-theme="dark">Escuro</button></div></div></div>
+          <div class="panel setting-card"><span class="setting-icon">⇩</span><div><h2>Exportar dados</h2><p>Baixe uma cópia completa do projeto em JSON.</p><button class="btn btn-secondary" id="exportBtn">Exportar projeto</button></div></div>
+          <div class="panel setting-card"><span class="setting-icon">⇧</span><div><h2>Importar dados</h2><p>Restaure um JSON válido. Os dados atuais serão substituídos.</p><label class="btn btn-secondary file-btn">Escolher arquivo<input type="file" id="importInput" accept="application/json,.json"></label></div></div>
+          <div class="panel setting-card danger-card"><span class="setting-icon">↺</span><div><h2>Restaurar demonstração</h2><p>Apaga alterações e recupera dados fictícios acadêmicos.</p><button class="btn btn-danger-outline" id="resetBtn">Restaurar dados</button></div></div>
+        </div>
+        <div class="taxonomy-grid">
+          <section class="panel taxonomy-panel"><div class="panel-title"><div><h2>Status</h2><p>Personalize colunas, filtros e pills do banco de referências.</p></div></div><form id="statusForm" class="inline-form"><input name="nome" required placeholder="Novo status"><input type="color" name="cor" value="#2e604a" aria-label="Cor do status"><button class="btn btn-secondary">Adicionar</button></form><div id="statusSettingsList" class="settings-list"></div></section>
+          <section class="panel taxonomy-panel"><div class="panel-title"><div><h2>Categorias</h2><p>Use cores para diferenciar eixos teóricos, métodos e corpus.</p></div></div><form id="categoryForm" class="inline-form"><input name="nome" required placeholder="Nova categoria"><input type="color" name="cor" value="#4f7dbd" aria-label="Cor da categoria"><button class="btn btn-secondary">Adicionar</button></form><div id="categorySettingsList" class="settings-list"></div></section>
+          <section class="panel taxonomy-panel"><div class="panel-title"><div><h2>Tags</h2><p>Marcadores coloridos para temas transversais e citações.</p></div></div><form id="tagForm" class="inline-form"><input name="nome" required placeholder="Nova tag"><input type="color" name="cor" value="#b9822f" aria-label="Cor da tag"><button class="btn btn-secondary">Adicionar</button></form><div id="tagSettingsList" class="settings-list"></div></section>
+        </div>
       </section>
     </main>
   </div>
@@ -115,7 +186,7 @@
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="app.js?v=20260710-sidebar-icon"></script>
+  <script src="dissertation-editor.js?v=20260912-editor-focus-fix"></script>
+  <script src="app.js?v=20260912-reference-schema"></script>
 </body>
 </html>
-
